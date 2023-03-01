@@ -1,2 +1,0 @@
-./database/podb.mv.db
-podb.trace.db

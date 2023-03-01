@@ -1,6 +1,0 @@
-2023-03-01 15:41:45 jdbc[3]: exception
-org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "STUDENTS" not found (this database is empty); SQL statement:
-SELECT * FROM STUDENTS [42104-214]
-2023-03-01 15:45:52 jdbc[3]: exception
-org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "STUDENTS" not found (this database is empty); SQL statement:
-SELECT * FROM STUDENTS [42104-214]

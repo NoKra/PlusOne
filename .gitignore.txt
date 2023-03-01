@@ -1,1 +1,2 @@
-*.db
+podb.mv.db
+podb.trace.db

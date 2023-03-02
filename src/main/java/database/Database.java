@@ -42,13 +42,15 @@ public class Database {
 
     public void initAllTables() throws SQLException {
         initSentencesTable();
+        initWordsTable();
+        initOccurrencesTable();
     }
 
     public void initSentencesTable() throws SQLException {
         String sentence_table = "CREATE TABLE SENTENCES(" +
                 "SENTENCE_KEY INT, " +
-                "SOURCE_TYPE VARCHAR(255), " +
-                "SOURCE_NAME VARCHAR(511), " +
+                "SOURCE_TYPE VARCHAR(31), " +
+                "SOURCE_NAME VARCHAR(255), " +
                 "SOURCE_URL VARCHAR(511), " +
                 "SENTENCE VARCHAR(1023) NOT NULL, " +
                 "IMAGE_PATH VARCHAR(511), " +
@@ -58,11 +60,11 @@ public class Database {
 
         dbConnection.createStatement().execute(sentence_table);
         System.out.println("Sentence table created");
-
     }
 
     public void initWordsTable() throws SQLException {
-        //TODO: Create Words Table sql statement
+        String word_table = "CREATE TABLE WORDS(" +
+                ");";
         System.out.println("Words table created");
     }
 
@@ -96,6 +98,7 @@ public class Database {
         }
 
         for(String table : requiredTables) {
+            System.out.println(table);
             switch (table) {
                 case "SENTENCES" -> initSentencesTable();
                 case "WORDS" -> initWordsTable();

@@ -7,14 +7,13 @@ import java.sql.SQLException;
 public class Main {
 
     public static void main(String[] args) throws SQLException {
-        startApp();
-        //dbTest();
+        startDatabase();
+        startWindow();
 
 
     }
 
-    public static void startApp() throws SQLException {
-        Database database = new Database();
+    public static void startWindow() throws SQLException {
 
         WindowObject mainWindow = new WindowObject();
         mainWindow.changeWindowSize();
@@ -24,10 +23,12 @@ public class Main {
         mainWindow.setWindowVisible();
         mainWindow.centerWindow();
 
-        database.testInsert();
-        //database.testConnection();
-        //database.testTableCreation();
+    }
 
+    public static void startDatabase() throws SQLException {
+        Database database = new Database();
+
+        //Ensures lock for H2 database is removed before exiting
         Runtime.getRuntime().addShutdownHook(new Thread(){
             @Override
             public void run() {
@@ -39,10 +40,5 @@ public class Main {
                 }
             }
         });
-    }
-
-    public static void dbTest() throws SQLException {
-        Database newConnect = new Database();
-        newConnect.testConnection();
     }
 }

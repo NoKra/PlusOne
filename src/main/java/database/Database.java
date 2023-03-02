@@ -1,18 +1,17 @@
 package database;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
+import java.util.*;
 
 public class Database {
     private final String jdbcURL = "jdbc:h2:file:./database/podb";
     private final String username = "po";
     private final String password = "";
     private final Connection dbConnection;
+    private final List<String> tables = List.of("SENTENCES", "WORDS", "OCCURRENCES");
 
     public Database() throws  SQLException {
         dbConnection = DriverManager.getConnection(jdbcURL, username, password);
+        checkForMissingTables();
     }
 
     public Connection getDbConnection() {
@@ -41,11 +40,68 @@ public class Database {
         System.out.println("something inserted");
     }
 
-    public void testTableCreation() throws SQLException {
-        String sql = "CREATE TABLE NOTSTUDENTS (" +
-                "ID INT PRIMARY KEY," +
-                "NAME VARCHAR(255))";
-        dbConnection.createStatement().execute(sql);
-        System.out.println("table maybe created");
+    public void initAllTables() throws SQLException {
+        initSentencesTable();
+    }
+
+    public void initSentencesTable() throws SQLException {
+        String sentence_table = "CREATE TABLE SENTENCES(" +
+                "SENTENCE_KEY INT, " +
+                "SOURCE_TYPE VARCHAR(255), " +
+                "SOURCE_NAME VARCHAR(511), " +
+                "SOURCE_URL VARCHAR(511), " +
+                "SENTENCE VARCHAR(1023) NOT NULL, " +
+                "IMAGE_PATH VARCHAR(511), " +
+                "NSFW BOOL," +
+                "PRIMARY KEY (SENTENCE_KEY)" +
+                ");";
+
+        dbConnection.createStatement().execute(sentence_table);
+        System.out.println("Sentence table created");
+
+    }
+
+    public void initWordsTable() throws SQLException {
+        //TODO: Create Words Table sql statement
+        System.out.println("Words table created");
+    }
+
+    public void initOccurrencesTable() throws SQLException {
+        //TODO: Create occurrences table sql statement
+        System.out.println("Occurrences table created");
+    }
+
+    //TODO: ADD FOREIGN KEY CONSTRAINTS TO OCCURRENCES TABLE
+
+    //Checks to make sure the database has all required tables created
+    public void checkForMissingTables() throws SQLException {
+        ArrayList<String> requiredTables = new ArrayList<>(tables);
+        int requiredCount = requiredTables.size();
+        ArrayList<String> existsTables = new ArrayList<>();
+
+        ResultSet rs = dbConnection.createStatement().executeQuery("SHOW TABLES;");
+        while(rs.next()) {
+            existsTables.add(rs.getString(1));
+        }
+        requiredTables.removeAll(existsTables);
+
+        if (requiredTables.isEmpty()) {
+            System.out.println("Tables loaded");
+            return;
+        }
+
+        if(requiredTables.size() == requiredCount) {
+            initAllTables();
+            return;
+        }
+
+        for(String table : requiredTables) {
+            switch (table) {
+                case "SENTENCES" -> initSentencesTable();
+                case "WORDS" -> initWordsTable();
+                case "OCCURRENCES" -> initOccurrencesTable();
+                default -> System.out.println("Table init method missing");
+            }
+        }
     }
 }

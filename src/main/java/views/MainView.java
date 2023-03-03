@@ -12,6 +12,7 @@ public class MainView {
     private final WindowObject mainWindow;
     private final Container container;
     private final SpringLayout layout;
+    //TODO: copyLabel will have to change into an input field so it's editable
     private JLabel copyLabel;
     private Clipboard clip;
 
@@ -24,6 +25,7 @@ public class MainView {
         listenClipForLabel();
     }
 
+    //TODO: move this over to AddSentenceView
     //Listens to the clipboard for Strings, sets copyLabel to value of clipboard Strings
     public void listenClipForLabel() {
         clip = Toolkit.getDefaultToolkit().getSystemClipboard();
@@ -55,13 +57,13 @@ public class MainView {
                 SpringLayout.NORTH, container
         );
         container.add(welcome);
-
         copyLabel = new JLabel("testing");
         layout.putConstraint(SpringLayout.HORIZONTAL_CENTER , copyLabel, 0,
                 SpringLayout.HORIZONTAL_CENTER, container);
         layout.putConstraint(SpringLayout.NORTH, copyLabel, 20,
                 SpringLayout.SOUTH, welcome);
         container.add(copyLabel);
+
 
         JButton testingButton = new JButton("Function Test");
         testingButton.addActionListener(new ActionListener() {
@@ -79,7 +81,7 @@ public class MainView {
     }
 
     private void testingFunction() {
-        copyLabel.setText("Label Reset");
+        mainWindow.clearWindow();
     }
 
 

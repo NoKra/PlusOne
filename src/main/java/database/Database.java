@@ -3,6 +3,8 @@ import java.sql.*;
 import java.util.*;
 
 public class Database {
+    //TODO: try to set database path to onedrive folder
+    //TODO: If not just save it to C:/PlusOneDb
     private final String jdbcURL = "jdbc:h2:file:./database/podb";
     private final String username = "po";
     private final String password = "";
@@ -54,8 +56,9 @@ public class Database {
                 "SOURCE_URL VARCHAR(511), " +
                 "SENTENCE VARCHAR(1023) NOT NULL, " +
                 "IMAGE_PATH VARCHAR(511), " +
-                "NSFW BOOL," +
-                "PRIMARY KEY (SENTENCE_KEY)" +
+                "NSFW BOOL, " +
+                "PRIMARY KEY (SENTENCE_KEY), " +
+                "BACK_LINK INT" + //If sentence is from a longer text, links backwards to provide reference
                 ");";
 
         dbConnection.createStatement().execute(sentence_table);
@@ -64,12 +67,27 @@ public class Database {
 
     public void initWordsTable() throws SQLException {
         String word_table = "CREATE TABLE WORDS(" +
+                "WORD_KEY INT, " +
+                "KANJI VARCHAR(63), " +
+                "KANA VARCHAR(127), " +
+                "PART_OF_SPEECH VARCHAR(31), " +
+                "ENGLISH_DEF VARCHAR(511), " +
+                "JAPANESE_DEF VARCHAR(511), " +
+                "TAGS VARCHAR(63), " +
+                "PRIMARY KEY (WORD_KEY)" +
                 ");";
+        dbConnection.createStatement().execute(word_table);
         System.out.println("Words table created");
     }
 
     public void initOccurrencesTable() throws SQLException {
-        //TODO: Create occurrences table sql statement
+        String occurrence_table = "CREATE TABLE OCCURRENCES(" +
+                "OCCURRENCE_KEY INT, " +
+                "SENTENCE_KEY INT, " +
+                "WORD_KEY INT, " +
+                "APPLICABLE_DEF VARCHAR(511)" +
+                ");";
+        dbConnection.createStatement().execute(occurrence_table);
         System.out.println("Occurrences table created");
     }
 
@@ -106,5 +124,35 @@ public class Database {
                 default -> System.out.println("Table init method missing");
             }
         }
+    }
+
+    public void deleteAllTables() throws SQLException {
+        ResultSet rs = dbConnection.createStatement().executeQuery("SHOW TABLES;");
+        while(rs.next()) {
+            deleteTable(rs.getString(1));
+        }
+    }
+
+    public void deleteTable(String tableName) throws SQLException {
+        //TODO: Write Sql delete statement
+        String sql = "";
+        dbConnection.createStatement().execute(sql);
+    }
+
+    public void insertSentence() throws SQLException {
+        //TODO: Write sql insert sentence statement
+        String sql = "";
+    }
+
+    public void insertWord() throws SQLException {
+        //TODO: Write sql insert word statement
+        String sql = "";
+
+    }
+
+    public void insertOccurrence() throws SQLException {
+        //TODO: Write sql insert occurrence statement
+        String sql = "";
+
     }
 }

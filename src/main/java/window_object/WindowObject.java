@@ -1,16 +1,23 @@
 package window_object;
 
+import database.Database;
+
 import javax.swing.*;
+import javax.xml.crypto.Data;
 import java.awt.*;
 
 public class WindowObject {
+    private final Database database;
     private final JFrame mainFrame;
     private final Container contentContainer;
     private final SpringLayout layout = new SpringLayout();
-    private final WindowNav nav = new WindowNav(this);
+    private final WindowNav nav;
+    private int windowHeight = 850;
+    private int windowWidth = 600;
 
 
-    public WindowObject() {
+    public WindowObject(Database database) {
+        this.database = database;
         mainFrame = new JFrame();
         mainFrame.setResizable(false);
         mainFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -19,7 +26,13 @@ public class WindowObject {
         contentContainer = mainFrame.getContentPane();
         contentContainer.setLayout(layout);
 
-        //TODO: Refer back to nav stuff for when there are more frames
+        //Must be instantiated after since nav goes to new window on new nav object, which also clears the container
+        //but the container needs to be made first
+        nav = new WindowNav(this);
+    }
+
+    public Database getDatabase() {
+        return database;
     }
 
     public Container getContentContainer() {
@@ -34,9 +47,17 @@ public class WindowObject {
         return nav;
     }
 
+    public int getWindowWidth() {
+        return windowWidth;
+    }
+
+    public int getWindowHeight() {
+        return windowHeight;
+    }
+
     public void changeWindowSize() {
         //TODO: include some common dimensions here
-        mainFrame.setSize(500, 700);
+        mainFrame.setSize(windowWidth, windowHeight);
     }
 
     public void clearWindow() {

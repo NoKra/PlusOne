@@ -5,9 +5,10 @@ import java.sql.SQLException;
 
 
 public class Main {
+    private static Database database;
 
     public static void main(String[] args) throws SQLException {
-        startDatabase();
+        database = startDatabase();
         startWindow();
 
 
@@ -15,17 +16,15 @@ public class Main {
 
     public static void startWindow() throws SQLException {
 
-        WindowObject mainWindow = new WindowObject();
+        WindowObject mainWindow = new WindowObject(database);
         mainWindow.changeWindowSize();
-
-        mainWindow.getNav().toMainView();
 
         mainWindow.setWindowVisible();
         mainWindow.centerWindow();
 
     }
 
-    public static void startDatabase() throws SQLException {
+    public static Database startDatabase() throws SQLException {
         Database database = new Database();
 
         //Ensures lock for H2 database is removed before exiting
@@ -40,5 +39,6 @@ public class Main {
                 }
             }
         });
+        return database;
     }
 }

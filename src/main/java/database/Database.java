@@ -5,7 +5,7 @@ import java.util.*;
 public class Database {
     //TODO: try to set database path to onedrive folder
     //TODO: If not just save it to C:/PlusOneDb
-    private final String jdbcURL = "jdbc:h2:file:./database/podb";
+    private final String jdbcURL = "jdbc:h2:file:C:/Users/Kraus/OneDrive/database/podb";
     private final String username = "po";
     private final String password = "";
     private final Connection dbConnection;
@@ -50,7 +50,7 @@ public class Database {
 
     public void initSentencesTable() throws SQLException {
         String sentence_table = "CREATE TABLE SENTENCES(" +
-                "SENTENCE_KEY INT, " +
+                "SENTENCE_KEY INT AUTO_INCREMENT, " +
                 "SOURCE_TYPE VARCHAR(31), " +
                 "SOURCE_NAME VARCHAR(255), " +
                 "SOURCE_URL VARCHAR(511), " +
@@ -74,6 +74,8 @@ public class Database {
                 "ENGLISH_DEF VARCHAR(511), " +
                 "JAPANESE_DEF VARCHAR(511), " +
                 "TAGS VARCHAR(63), " +
+                "LOWEST_PLUS_VAL INT, " +
+                "FREQUENCY INT, " +
                 "PRIMARY KEY (WORD_KEY)" +
                 ");";
         dbConnection.createStatement().execute(word_table);
@@ -85,7 +87,8 @@ public class Database {
                 "OCCURRENCE_KEY INT, " +
                 "SENTENCE_KEY INT, " +
                 "WORD_KEY INT, " +
-                "APPLICABLE_DEF VARCHAR(511)" +
+                "APPLICABLE_DEF VARCHAR(511), " +
+                "PLUS_VALUE INT" +
                 ");";
         dbConnection.createStatement().execute(occurrence_table);
         System.out.println("Occurrences table created");
@@ -139,9 +142,14 @@ public class Database {
         dbConnection.createStatement().execute(sql);
     }
 
-    public void insertSentence() throws SQLException {
-        //TODO: Write sql insert sentence statement
-        String sql = "";
+    public void insertSentence(String sourceType, String sourceName, String sourceUrl, String sentence,
+                               String imagePath, String nsfw, String backLink) throws SQLException {
+
+        String sql = String.format("INSERT INTO SENTENCES VALUES (" +
+                "%s, %s, %s, %s, %s, %s, %s);",
+                sourceType, sourceName, sourceUrl, sentence, imagePath, nsfw, backLink);
+
+        //TODO: Do some testing on actual inserts into table
     }
 
     public void insertWord() throws SQLException {

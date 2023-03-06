@@ -1,23 +1,42 @@
 package database;
+import javax.sound.midi.SysexMessage;
 import java.sql.*;
 import java.util.*;
 
 public class Database {
-    //TODO: try to set database path to onedrive folder
-    //TODO: If not just save it to C:/PlusOneDb
     private final String jdbcURL = "jdbc:h2:file:C:/Users/Kraus/OneDrive/database/podb";
     private final String username = "po";
     private final String password = "";
     private final Connection dbConnection;
     private final List<String> tables = List.of("SENTENCES", "WORDS", "OCCURRENCES");
+    private int sentenceIndex;
 
     public Database() throws  SQLException {
         dbConnection = DriverManager.getConnection(jdbcURL, username, password);
         checkForMissingTables();
+        sentenceIndex = findSentenceIndex();
+
+        System.out.println("Current Sentence Index: " + sentenceIndex);
     }
 
     public Connection getDbConnection() {
         return dbConnection;
+    }
+
+    public int getSentenceIndex() {
+        return sentenceIndex;
+    }
+
+    private int findSentenceIndex() throws SQLException {
+        String emptySql = "SELECT MAX(SENTENCE_KEY) AS MaxKey FROM SENTENCES;";
+        ResultSet emptyResult = dbConnection.createStatement().executeQuery(emptySql);
+        if(emptyResult.next()) {
+            return emptyResult.getInt("MaxKey");
+        }
+        else {
+            System.out.println("SQL Select Max Failed");
+            return -1;
+        }
     }
 
     public void testConnection() throws SQLException {
@@ -35,11 +54,6 @@ public class Database {
             String name = resultSet.getString("name");
             System.out.println("Student: " + ID + "Name: " + name);
         }
-    }
-    public void testInsert() throws SQLException {
-        String sql = "INSERT INTO NOTSTUDENTS VALUES (9, 'stop being dumb');";
-        dbConnection.createStatement().execute(sql);
-        System.out.println("something inserted");
     }
 
     public void initAllTables() throws SQLException {
@@ -144,12 +158,12 @@ public class Database {
 
     public void insertSentence(String sourceType, String sourceName, String sourceUrl, String sentence,
                                String imagePath, String nsfw, String backLink) throws SQLException {
-
-        String sql = String.format("INSERT INTO SENTENCES VALUES (" +
-                "%s, %s, %s, %s, %s, %s, %s);",
-                sourceType, sourceName, sourceUrl, sentence, imagePath, nsfw, backLink);
-
-        //TODO: Do some testing on actual inserts into table
+        sentenceIndex += 1;
+        String sql = String.format("INSERT INTO SENTENCES VALUES ( " +
+                        "%d, %s, %s, %s, %s, %s, %s, %s);",
+                sentenceIndex ,sourceType, sourceName, sourceUrl, sentence, imagePath, nsfw, backLink);
+        System.out.println(sql);
+        dbConnection.createStatement().execute(sql);
     }
 
     public void insertWord() throws SQLException {

@@ -90,6 +90,12 @@ public class AddSentenceView {
         //TODO: Create function for setting a back link with an already saved sentence
         JButton setLinkButton = new JButton("Set Link");
         setLinkButton.setFont(jpFont);
+        setLinkButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new SetLinkView(mainWindow);
+            }
+        });
 
         //TODO: Create function for viewing the currently set backlink
         JButton viewLinkButton = new JButton("View Link");
@@ -247,6 +253,9 @@ public class AddSentenceView {
             public void actionPerformed(ActionEvent e) {
                 try {
                     sentenceControl.addSentence();
+                    if(!currentLinkStatusLabel.getText().equals("No Link")) {
+                        currentLinkStatusLabel.setText(String.valueOf(mainWindow.getDatabase().getSentenceIndex()));
+                    }
                 } catch (SQLException ex) {
                     throw new RuntimeException(ex);
                 }

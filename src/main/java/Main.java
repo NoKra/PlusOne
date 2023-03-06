@@ -17,8 +17,8 @@ public class Main {
     public static void startWindow() throws SQLException {
 
         WindowObject mainWindow = new WindowObject(database);
+        mainWindow.getNav().toAddSentence();
         mainWindow.changeWindowSize();
-
         mainWindow.setWindowVisible();
         mainWindow.centerWindow();
 

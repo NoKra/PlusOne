@@ -30,18 +30,17 @@ public class AddSentenceControl {
     }
 
     public void addSentence() throws SQLException {
-        String type = "\"" + Objects.requireNonNull(sourceType.getSelectedItem()).toString() + "\"";
-        String name = "\"" + sourceName.getText() + "\"";
-        String url = sourceURL.getText().equals("") ? "NULL" : "\"" + sourceURL.getText() + "\"";
-        String sent = "\"" + sentence.getText() + "\"";
-        String image = imageLink.getText().equals("") ? "NULL" : "\"" + imageLink.getText() + "\"";
+        String type = "'" + Objects.requireNonNull(sourceType.getSelectedItem()).toString() + "'";
+        String name = "'" + sourceName.getText() + "'";
+        String url = sourceURL.getText().equals("") ? "NULL" : "'" + sourceURL.getText() + "'";
+        String sent = "'" + sentence.getText() + "'";
+        String image = imageLink.getText().equals("") ? "NULL" : "'" + imageLink.getText() + "'";
         String nsfw = nsfwTag.isSelected() ? "TRUE" : "FALSE";
-        String link = backLink.getText().equals("No Link") ? "NULL" : "\"" + backLink.getText() + "\"";
-        
+        String link = backLink.getText().equals("No Link") || backLink.getText().equals("Head") ?
+                "NULL" : backLink.getText();
+
         database.insertSentence(type, name, url, sent, image, nsfw, link);
     }
 
     //TODO: How to reference and save images
-
-    //TODO: How to process linking between sentences
 }

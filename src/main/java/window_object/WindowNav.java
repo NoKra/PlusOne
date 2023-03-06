@@ -1,25 +1,27 @@
 package window_object;
 
 import views.AddSentenceView;
-import views.MainView;
+import views.SetLinkView;
 
 public class WindowNav {
+
     WindowObject mainWindow;
 
     public WindowNav(WindowObject mainWindow) {
         this.mainWindow = mainWindow;
-        toAddSentences();
     }
 
-    public void toMainView() {
+    public void toAddSentence() {
         mainWindow.clearWindow();
-        MainView newMain = new MainView(mainWindow);
+        new AddSentenceView(mainWindow);
         mainWindow.showNewContent();
     }
 
-    public void toAddSentences() {
+    public void toSetLink() {
         mainWindow.clearWindow();
-        AddSentenceView newSentences = new AddSentenceView(mainWindow);
+        new SetLinkView(mainWindow);
         mainWindow.showNewContent();
     }
+
+
 }

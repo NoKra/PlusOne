@@ -3,7 +3,6 @@ package window_object;
 import database.Database;
 
 import javax.swing.*;
-import javax.xml.crypto.Data;
 import java.awt.*;
 
 public class WindowObject {
@@ -12,15 +11,46 @@ public class WindowObject {
     private final Container contentContainer;
     private final SpringLayout layout = new SpringLayout();
     private final WindowNav nav;
-    private int windowHeight = 850;
-    private int windowWidth = 600;
+    private int windowHeight;
+    private int windowWidth;
 
+    public enum WindowSize {
+        AddSentenceView(600, 850, true),
+        SetLinkView(800, 500, false);
 
-    public WindowObject(Database database) {
-        this.database = database;
+        private final int windowWidth;
+        private final int windowHeight;
+        private final Boolean isMain;
+
+        WindowSize(int windowWidth, int windowHeight, boolean isMain) {
+            this.windowWidth = windowWidth;
+            this.windowHeight = windowHeight;
+            this.isMain = isMain;
+        }
+
+        public int getWindowWidth() {
+            return windowWidth;
+        }
+
+        public int getWindowHeight() {
+            return windowHeight;
+        }
+
+        public boolean getIsMain() {
+            return isMain;
+        }
+    }
+
+    public WindowObject(Database database, WindowSize windowSize) {
         mainFrame = new JFrame();
+        this.database = database;
+        this.windowWidth = windowSize.windowWidth;
+        this.windowHeight = windowSize.windowHeight;
+        changeWindowSize();
         mainFrame.setResizable(false);
-        mainFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        if(windowSize.isMain) {
+            mainFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        }
         mainFrame.setTitle("Plus One");
 
         contentContainer = mainFrame.getContentPane();
@@ -29,6 +59,8 @@ public class WindowObject {
         //Must be instantiated after since nav goes to new window on new nav object, which also clears the container
         //but the container needs to be made first
         nav = new WindowNav(this);
+        setWindowVisible();
+        centerWindow();
     }
 
     public Database getDatabase() {
@@ -56,7 +88,6 @@ public class WindowObject {
     }
 
     public void changeWindowSize() {
-        //TODO: include some common dimensions here
         mainFrame.setSize(windowWidth, windowHeight);
     }
 

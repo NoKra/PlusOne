@@ -1,6 +1,7 @@
 package views;
 
 import window_object.WindowObject;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -13,11 +14,10 @@ public class SetLinkView {
 
     public SetLinkView(WindowObject mainWindow) {
 
-        setWindow = new WindowObject(mainWindow.getDatabase());
+        setWindow = new WindowObject(mainWindow.getDatabase(), WindowObject.WindowSize.SetLinkView);
         container = setWindow.getContentContainer();
         layout = setWindow.getLayout();
 
-        setWindow.changeWindowSize();
         setWindow.setWindowVisible();
         createView();
     }
@@ -34,20 +34,23 @@ public class SetLinkView {
         );
         container.add(header);
 
+        String[] columns = {"Sentence ID", "Source Type", "Source Name", "Source URL", "Sentence", "Backlink"};
         DefaultTableModel sentTableModel = new DefaultTableModel();
         JTable sentenceTable = new JTable(sentTableModel);
-        sentTableModel.addColumn("SENTENCE_KEY");
-        sentTableModel.addColumn("KANJI");
-        sentTableModel.insertRow(0, new Object[] {"a", "1"});
+        JScrollPane tableScroll = new JScrollPane(sentenceTable);
+        sentenceTable.setCellSelectionEnabled(false);
+        for(String column : columns) {
+            sentTableModel.addColumn(column);
+        }
         layout.putConstraint(
-                SpringLayout.WEST, sentenceTable, padding,
+                SpringLayout.WEST, tableScroll, padding,
                 SpringLayout.WEST, container
         );
         layout.putConstraint(
-                SpringLayout.NORTH, sentenceTable, padding,
+                SpringLayout.NORTH, tableScroll, padding,
                 SpringLayout.SOUTH, header
         );
-        container.add(sentenceTable);
+        container.add(tableScroll);
 
 
     }

@@ -1,13 +1,20 @@
 package views;
 
 
+import content_objects.SentenceObject;
 import controllers.AddSentenceControl;
 import window_object.WindowObject;
+
+import javax.sound.midi.SysexMessage;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.sql.SQLException;
+import java.util.Objects;
+import java.util.Set;
 
 public class AddSentenceView {
     private final WindowObject mainWindow;
@@ -152,6 +159,7 @@ public class AddSentenceView {
         );
         container.add(sourceNameArea);
 
+
         //URL Input
         JLabel sourceUrlLabel = new JLabel("URL: ");
         sourceUrlLabel.setFont(jpFont);
@@ -254,13 +262,37 @@ public class AddSentenceView {
                 try {
                     sentenceControl.addSentence();
                     if(!currentLinkStatusLabel.getText().equals("No Link")) {
-                        currentLinkStatusLabel.setText(String.valueOf(mainWindow.getDatabase().getSentenceIndex()));
+                        currentLinkStatusLabel.setText(sentenceArea.getText());
                     }
                 } catch (SQLException ex) {
                     throw new RuntimeException(ex);
                 }
             }
         });
+        sourceNameArea.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if(e.getKeyCode() == KeyEvent.VK_TAB) {
+                    e.consume();
+                    if(hasUrlCheck.isSelected()) {
+                        sourceUrlArea.requestFocus();
+                    }
+                    else {
+                        sentenceArea.requestFocus();
+                    }
+                }
+            }
+        });
+        sourceUrlArea.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if(e.getKeyCode() == KeyEvent.VK_TAB) {
+                    e.consume();
+                    sentenceArea.requestFocus();
+                }
+            }
+        });
+        //TODO: add sentence to image tab action
 
 
         sequentialCheck.addActionListener(new ActionListener() {
@@ -390,8 +422,8 @@ public class AddSentenceView {
                 container.revalidate();
             }
         });
-        return new AddSentenceControl(mainWindow.getDatabase(), sourceTypeCombo, currentLinkStatusLabel, sourceNameArea,
-                sourceUrlArea, sentenceArea, nsfwCheck, imageArea);
+        return new AddSentenceControl(mainWindow.getDatabase(), sourceTypeCombo, sourceNameArea, sourceUrlArea, sentenceArea,
+                nsfwCheck, imageArea, currentLinkStatusLabel);
     }
 
     private void setHeadClicked(JLabel currentBackLink) {

@@ -9,18 +9,9 @@ public class Main {
 
     public static void main(String[] args) throws SQLException {
         database = startDatabase();
-        startWindow();
-
-
-    }
-
-    public static void startWindow() throws SQLException {
-
-        WindowObject mainWindow = new WindowObject(database);
+        WindowObject mainWindow = new WindowObject(database, WindowObject.WindowSize.AddSentenceView);
         mainWindow.getNav().toAddSentence();
-        mainWindow.changeWindowSize();
-        mainWindow.setWindowVisible();
-        mainWindow.centerWindow();
+
 
     }
 

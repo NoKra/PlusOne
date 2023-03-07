@@ -3,6 +3,7 @@ package views;
 
 import content_objects.SentenceObject;
 import controllers.AddSentenceControl;
+import org.h2.expression.function.SysInfoFunction;
 import window_object.WindowObject;
 
 import javax.sound.midi.SysexMessage;
@@ -24,7 +25,8 @@ public class AddSentenceView {
     private final int padding = 20;
     private final Font jpFont = new Font("Meiryo", Font.BOLD, 16);
     //TODO: Consider making a separate font for ui elements?
-    private int fieldColumns = 34;
+
+    private int fieldColumns = 33;
     //TODO: After setting up window sizing options, make some kind of relational to column count for textarea
 
     public AddSentenceView(WindowObject mainWindow) {
@@ -150,8 +152,8 @@ public class AddSentenceView {
         sourceNameArea.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         sourceNameArea.setFont(jpFont);
         layout.putConstraint(
-                SpringLayout.WEST, sourceNameArea, padding,
-                SpringLayout.WEST, container
+                SpringLayout.HORIZONTAL_CENTER, sourceNameArea, 0,
+                SpringLayout.HORIZONTAL_CENTER, container
         );
         layout.putConstraint(
                 SpringLayout.NORTH, sourceNameArea, padding,
@@ -193,8 +195,8 @@ public class AddSentenceView {
         sentenceArea.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         sentenceArea.setFont(jpFont);
         layout.putConstraint(
-                SpringLayout.WEST, sentenceArea, padding,
-                SpringLayout.WEST, container
+                SpringLayout.HORIZONTAL_CENTER, sentenceArea, 0,
+                SpringLayout.HORIZONTAL_CENTER, container
         );
         layout.putConstraint(
                 SpringLayout.NORTH, sentenceArea, padding,
@@ -235,8 +237,8 @@ public class AddSentenceView {
         imageArea.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         imageArea.setFont(jpFont);
         layout.putConstraint(
-                SpringLayout.WEST, imageArea, padding,
-                SpringLayout.WEST, container
+                SpringLayout.HORIZONTAL_CENTER, imageArea, 0,
+                SpringLayout.HORIZONTAL_CENTER, container
         );
         layout.putConstraint(
                 SpringLayout.NORTH, imageArea, padding,
@@ -392,8 +394,8 @@ public class AddSentenceView {
                     container.add(sourceUrlLabel);
 
                     layout.putConstraint(
-                            SpringLayout.WEST, sourceUrlArea, padding,
-                            SpringLayout.WEST, container
+                            SpringLayout.HORIZONTAL_CENTER, sourceUrlArea, 0,
+                            SpringLayout.HORIZONTAL_CENTER, container
                     );
                     layout.putConstraint(
                             SpringLayout.NORTH, sourceUrlArea, padding,

@@ -1,16 +1,20 @@
 package views;
 
+import controllers.SetLinkController;
 import window_object.WindowObject;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.sql.SQLException;
 
 public class SetLinkView {
     private final WindowObject setWindow;
     private final Container container;
     private final SpringLayout layout;
     private final int padding = 20;
+    DefaultTableModel linkTableModel = new DefaultTableModel();
+    private final SetLinkController linkController;
 
     public SetLinkView(WindowObject mainWindow) {
 
@@ -19,6 +23,14 @@ public class SetLinkView {
         layout = setWindow.getLayout();
 
         setWindow.setWindowVisible();
+
+        linkController = new SetLinkController(mainWindow.getDatabase(), linkTableModel);
+        try {
+            linkController.populateTableModel();
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+
         createView();
     }
 
@@ -35,12 +47,12 @@ public class SetLinkView {
         container.add(header);
 
         String[] columns = {"Sentence ID", "Source Type", "Source Name", "Source URL", "Sentence", "Backlink"};
-        DefaultTableModel sentTableModel = new DefaultTableModel();
-        JTable sentenceTable = new JTable(sentTableModel);
+        JTable sentenceTable = new JTable(linkTableModel);
+        sentenceTable.getTableHeader().setReorderingAllowed(false);
         JScrollPane tableScroll = new JScrollPane(sentenceTable);
         sentenceTable.setCellSelectionEnabled(false);
         for(String column : columns) {
-            sentTableModel.addColumn(column);
+            linkTableModel.addColumn(column);
         }
         layout.putConstraint(
                 SpringLayout.WEST, tableScroll, padding,
@@ -51,7 +63,6 @@ public class SetLinkView {
                 SpringLayout.SOUTH, header
         );
         container.add(tableScroll);
-
 
     }
 }

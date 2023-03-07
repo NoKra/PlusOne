@@ -3,7 +3,8 @@ import java.sql.*;
 import java.util.*;
 
 public class Database {
-    private final String jdbcURL = "jdbc:h2:file:C:/Users/Kraus/OneDrive/database/podb";
+    private final String jdbcURL = "jdbc:h2:file:C:/Users/NoKra/OneDrive/database/podb";
+    //private final String jdbcURL = "jdbc:h2:file:C:/Users/Kraus/OneDrive/database/podb";
     private final String username = "po";
     private final String password = "";
     private final Connection dbConnection;
@@ -163,6 +164,18 @@ public class Database {
                 sentenceIndex ,sourceType, sourceName, sourceUrl, sentence, imagePath, nsfw, backLink);
         System.out.println(sql);
         dbConnection.createStatement().execute(sql);
+    }
+
+    public void fetchSentenceByKey(int sentenceKey) throws SQLException {
+        String sql = String.format("SELECT * FROM SENTENCES WHERE SENTENCE_KEY = %s", sentenceKey);
+        ResultSet rs = dbConnection.createStatement().executeQuery(sql);
+        while(rs.next()) {
+            int key = rs.getInt("SENTENCE_KEY");
+            String sourceName = rs.getString("SOURCE_NAME");
+            String sentence = rs.getString("SENTENCE");
+            System.out.println(String.format("Key: %d | Source: %s | Sentence: %s", key, sourceName, sentence));
+            //TODO: transfer the fetched sentences to a word object and return that object
+        }
     }
 
     public void insertWord() throws SQLException {

@@ -42,7 +42,7 @@ public class AddSentenceControl {
 
         database.insertSentence(type, name, url, sent, image, nsfw, link);
         if(!backlinkLabel.getText().equals("No LInk")) {
-            backlinkId = database.getSentenceIndex();
+            backlinkId = database.getMaxSentenceIndex();
         }
     }
 

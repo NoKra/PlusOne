@@ -1,33 +1,117 @@
 package database;
+import content_objects.SentenceObject;
+import org.h2.store.fs.FileUtils;
+
+import javax.lang.model.type.NullType;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.sql.*;
 import java.util.*;
+import java.util.function.Function;
 
 public class Database {
-    private final String jdbcURL = "jdbc:h2:file:C:/Users/NoKra/OneDrive/database/podb";
-    //private final String jdbcURL = "jdbc:h2:file:C:/Users/Kraus/OneDrive/database/podb";
+    //TODO: Create a way to select db save location
+    //private final String jdbcURL = "jdbc:h2:file:C:/Users/NoKra/OneDrive/database/podb";
+    private final String jdbcURL = "jdbc:h2:file:C:/Users/Kraus/OneDrive/database/podb";
     private final String username = "po";
     private final String password = "";
-    private final Connection dbConnection;
+    private Connection dbConnection;
     private final List<String> tables = List.of("SENTENCES", "WORDS", "OCCURRENCES");
-    private int sentenceIndex;
+    private int maxSentenceIndex;
+    private int maxWordIndex;
+    private int maxOccurrenceIndex;
 
     public Database() throws  SQLException {
         dbConnection = DriverManager.getConnection(jdbcURL, username, password);
         checkForMissingTables();
-        sentenceIndex = findSentenceIndex();
+        maxSentenceIndex = findMaxSentenceIndex();
 
-        System.out.println("Current Sentence Index: " + sentenceIndex);
+        System.out.println("Current Sentence Index: " + maxSentenceIndex);
     }
 
     public Connection getDbConnection() {
         return dbConnection;
     }
 
-    public int getSentenceIndex() {
-        return sentenceIndex;
+    public void backupDatabase()  {
+        //Need to close connection to unlock .mv.db file
+        try {
+            dbConnection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        FileInputStream inputStream;
+        FileOutputStream outputStream;
+        //TODO: Release version - Rework this hardcoding of substrings to work within source directory
+        //TODO: Also, implement some sort of versioning to have several backups, consider doing interval backups by date?
+        String sourceSub = jdbcURL.substring(13);
+        String[] sourceFiles = {sourceSub + ".mv.db", sourceSub + ".trace.db"};
+        String destinationSub = sourceSub.substring(0, sourceSub.length() - 5);
+        String[] destinationFiles = {destinationSub + "/backup/podb.mv.db", destinationSub + "/backup/podb.trace.db"};
+        for(int i = 0; i < sourceFiles.length; i++) {
+            try {
+                inputStream = new FileInputStream(sourceFiles[i]);
+                outputStream = new FileOutputStream(destinationFiles[i]);
+                int condition;
+                while((condition = inputStream.read()) != -1) {
+                    outputStream.write(condition);
+                }
+                System.out.printf("Finished: %s%n", sourceFiles[i]);
+                inputStream.close();
+                outputStream.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        try {
+            dbConnection = DriverManager.getConnection(jdbcURL, username, password);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
-    private int findSentenceIndex() throws SQLException {
+    //TODO: Is there another reason or way to converge the save and load backups?
+    public void loadBackupDatabase() {
+        try {
+            dbConnection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        FileInputStream inputStream;
+        FileOutputStream outputStream;
+        String destinationSub = jdbcURL.substring(13);
+        String[] destinationFiles = {destinationSub + ".mv.db", destinationSub + ".trace.db"};
+        String sourceSub = destinationSub.substring(0, destinationSub.length() - 5);
+        String[] sourceFiles = {sourceSub + "/backup/podb.mv.db", sourceSub + "/backup/podb.trace.db"};
+        for(int i = 0; i < destinationFiles.length; i++) {
+            try {
+                inputStream = new FileInputStream(sourceFiles[i]);
+                outputStream = new FileOutputStream(destinationFiles[i]);
+                int condition;
+                while((condition = inputStream.read()) != -1) {
+                    outputStream.write(condition);
+                }
+                System.out.printf("Finished: %s%n", destinationFiles[i]);
+                inputStream.close();
+                outputStream.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        try {
+            dbConnection = DriverManager.getConnection(jdbcURL, username, password);
+            maxSentenceIndex = findMaxSentenceIndex();
+            //TODO: implement finds for word and occurrences later
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public int getMaxSentenceIndex() {
+        return maxSentenceIndex;
+    }
+
+    public int findMaxSentenceIndex() throws SQLException {
         String emptySql = "SELECT MAX(SENTENCE_KEY) AS MaxKey FROM SENTENCES;";
         ResultSet emptyResult = dbConnection.createStatement().executeQuery(emptySql);
         if(emptyResult.next()) {
@@ -39,21 +123,12 @@ public class Database {
         }
     }
 
-    public void testConnection() throws SQLException {
+    public int findMaxWordIndex() {
+        return 0;
+    }
 
-        System.out.println("Connected to H2 embedded database");
-
-        String sql = "SELECT * FROM STUDENTS";
-
-        Statement statement = dbConnection.createStatement();
-        ResultSet resultSet = statement.executeQuery(sql);
-
-        while (resultSet.next()) {
-
-            int ID = resultSet.getInt("ID");
-            String name = resultSet.getString("name");
-            System.out.println("Student: " + ID + "Name: " + name);
-        }
+    public int findMaxOccurrenceIndex() {
+        return 0;
     }
 
     public void initAllTables() throws SQLException {
@@ -143,6 +218,18 @@ public class Database {
         }
     }
 
+    public void purgeTable(String tableName) throws SQLException {
+
+        String sql = String.format("DELETE FROM %s", tableName);
+        dbConnection.createStatement().execute(sql);
+
+        switch (tableName) {
+            case "SENTENCES" -> maxSentenceIndex = 0;
+            case "WORDS" -> maxWordIndex = 0;
+            case "OCCURRENCES" -> maxOccurrenceIndex = 0;
+        }
+    }
+
     public void deleteAllTables() throws SQLException {
         ResultSet rs = dbConnection.createStatement().executeQuery("SHOW TABLES;");
         while(rs.next()) {
@@ -158,25 +245,50 @@ public class Database {
 
     public void insertSentence(String sourceType, String sourceName, String sourceUrl, String sentence,
                                String imagePath, String nsfw, String backLink) throws SQLException {
-        sentenceIndex += 1;
+        maxSentenceIndex += 1;
         String sql = String.format("INSERT INTO SENTENCES VALUES ( " +
                         "%d, %s, %s, %s, %s, %s, %s, %s);",
-                sentenceIndex ,sourceType, sourceName, sourceUrl, sentence, imagePath, nsfw, backLink);
+                maxSentenceIndex,sourceType, sourceName, sourceUrl, sentence, imagePath, nsfw, backLink);
         System.out.println(sql);
         dbConnection.createStatement().execute(sql);
     }
 
-    public void fetchSentenceByKey(int sentenceKey) throws SQLException {
+    public SentenceObject[] fetchAllSentences() throws SQLException {
+        SentenceObject[] loadedSentences = new SentenceObject[maxSentenceIndex];
+        String sql = "SELECT * FROM SENTENCES";
+        ResultSet rs = dbConnection.createStatement().executeQuery(sql);
+        int index = 0;
+        while(rs.next()) {
+            loadedSentences[index] = new SentenceObject(
+                    rs.getInt("SENTENCE_KEY"),
+                    rs.getString("SOURCE_TYPE"),
+                    rs.getString("SOURCE_NAME"),
+                    rs.getString("SOURCE_URL"),
+                    rs.getString("SENTENCE"),
+                    rs.getString("IMAGE_PATH"),
+                    rs.getBoolean("NSFW"),
+                    rs.getInt("BACK_LINK")
+            );
+            index++;
+        }
+        return loadedSentences;
+    }
+
+    public SentenceObject fetchSentenceByKey(int sentenceKey) throws SQLException {
         String sql = String.format("SELECT * FROM SENTENCES WHERE SENTENCE_KEY = %s", sentenceKey);
         ResultSet rs = dbConnection.createStatement().executeQuery(sql);
-        while(rs.next()) {
-            int key = rs.getInt("SENTENCE_KEY");
-            String sourceName = rs.getString("SOURCE_NAME");
-            String sentence = rs.getString("SENTENCE");
-            System.out.println(String.format("Key: %d | Source: %s | Sentence: %s", key, sourceName, sentence));
-            //TODO: transfer the fetched sentences to a word object and return that object
-        }
+        rs.next();
+        String sourceType = rs.getString("SOURCE_TYPE");
+        String sourceName = rs.getString("SOURCE_NAME");
+        String sourceURL = rs.getString("SOURCE_URL");
+        String sentence = rs.getString("SENTENCE");
+        String imgPath = rs.getString("IMAGE_PATH");
+        Boolean nsfw = rs.getBoolean("NSFW");
+        int backlink = rs.getInt("BACK_LINK");
+
+        return new SentenceObject(sentenceKey, sourceType, sourceName, sourceURL, sentence, imgPath, nsfw, backlink);
     }
+
 
     public void insertWord() throws SQLException {
         //TODO: Write sql insert word statement

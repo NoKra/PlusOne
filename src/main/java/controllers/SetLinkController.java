@@ -1,8 +1,10 @@
 package controllers;
 
+import content_objects.SentenceObject;
 import database.Database;
 
 import javax.swing.table.DefaultTableModel;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class SetLinkController {
@@ -15,11 +17,11 @@ public class SetLinkController {
 
     }
 
-    public void populateTableModel() throws SQLException {
+    public void setupTable() {
+        //TODO: move all the table/tablemodel initialization here
+    }
 
-        for(int i = 1; i <= database.getSentenceIndex(); i++) {
-            database.fetchSentenceByKey(i);
-            //TODO: use word objects to populate rows in the the tableModel
-        }
+    public void loadAllSentences() throws SQLException {
+        SentenceObject[] loadedSentences = database.fetchAllSentences();
     }
 }

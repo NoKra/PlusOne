@@ -26,7 +26,7 @@ public class SetLinkView {
 
         linkController = new SetLinkController(mainWindow.getDatabase(), linkTableModel);
         try {
-            linkController.populateTableModel();
+            linkController.loadAllSentences();
         } catch (SQLException e) {
             System.out.println(e);
         }

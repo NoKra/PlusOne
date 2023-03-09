@@ -9,11 +9,11 @@ public class SentenceObject {
     private final String sentence;
     private final String imagePath;
     private final Boolean nsfwTag;
-    private SentenceObject backlink;
+    private final int backlink;
 
 
     public SentenceObject(int sentenceKey, String sourceType, String sourceName, String sourceUrl, String sentence,
-                          String imagePath, boolean nsfwTag, SentenceObject backlink) {
+                          String imagePath, boolean nsfwTag, int backlink) {
         this.sentenceKey = sentenceKey;
         this.sourceType = sourceType;
         this.sourceName = sourceName;
@@ -52,11 +52,21 @@ public class SentenceObject {
         return nsfwTag;
     }
 
-    public SentenceObject getBacklink() {
+    public int getBacklink() {
         return backlink;
     }
 
-    public void setBacklink(SentenceObject backlink) {
-        this.backlink = backlink;
+    public void consolePrint() {
+        System.out.println(String.format(
+                "Sentence Key: %d | " +
+                "Source Type: %s | " +
+                "Source Name: %s | " +
+                "Source URL: %s |" +
+                "Sentence: %s |" +
+                "Image Path: %s |" +
+                "NSFW Status: %s |" +
+                "Backlink: %s",
+                sentenceKey, sourceType, sourceName, sourceUrl, sentence, imagePath, nsfwTag, backlink));
     }
+
 }

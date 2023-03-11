@@ -259,16 +259,7 @@ public class Database {
         ResultSet rs = dbConnection.createStatement().executeQuery(sql);
         int index = 0;
         while(rs.next()) {
-            loadedSentences[index] = new SentenceObject(
-                    rs.getInt("SENTENCE_KEY"),
-                    rs.getString("SOURCE_TYPE"),
-                    rs.getString("SOURCE_NAME"),
-                    rs.getString("SOURCE_URL"),
-                    rs.getString("SENTENCE"),
-                    rs.getString("IMAGE_PATH"),
-                    rs.getBoolean("NSFW"),
-                    rs.getInt("BACK_LINK")
-            );
+            loadedSentences[index] = resultToSentenceObject(rs);
             index++;
         }
         return loadedSentences;
@@ -278,16 +269,41 @@ public class Database {
         String sql = String.format("SELECT * FROM SENTENCES WHERE SENTENCE_KEY = %s", sentenceKey);
         ResultSet rs = dbConnection.createStatement().executeQuery(sql);
         rs.next();
-        String sourceType = rs.getString("SOURCE_TYPE");
-        String sourceName = rs.getString("SOURCE_NAME");
-        String sourceURL = rs.getString("SOURCE_URL");
-        String sentence = rs.getString("SENTENCE");
-        String imgPath = rs.getString("IMAGE_PATH");
-        Boolean nsfw = rs.getBoolean("NSFW");
-        int backlink = rs.getInt("BACK_LINK");
+        return resultToSentenceObject(rs);
+    }
+
+    public SentenceObject[] fetchMatchingSentences(String searchValue) throws SQLException{
+        //String sql = String.format("SELECT * FROM SENTENCES WHERE REGEXP_LIKE(SENTENCE, '%s[a-z]*');", searchValue);
+        String sql = String.format("SELECT COUNT(*) AS COUNT, * FROM SENTENCES WHERE REGEXP_LIKE(SENTENCE, '%s[a-z]*') GROUP BY SENTENCE;", searchValue);
+        ResultSet rs = dbConnection.createStatement().executeQuery(sql);
+        if(!rs.next()) {
+            System.out.println(rs);
+            return new SentenceObject[0];
+        }
+        SentenceObject[] foundSentences = new SentenceObject[rs.getInt("COUNT")];
+        //TODO: Test with 'k' or some common pattern to see why going out of index
+        int index = 0;
+        do {
+            foundSentences[index] = resultToSentenceObject(rs);
+            index++;
+        } while(rs.next());
+        return foundSentences;
+    }
+
+
+    public SentenceObject resultToSentenceObject(ResultSet set) throws SQLException {
+        int sentenceKey = set.getInt("SENTENCE_KEY");
+        String sourceType = set.getString("SOURCE_TYPE");
+        String sourceName = set.getString("SOURCE_NAME");
+        String sourceURL = set.getString("SOURCE_URL");
+        String sentence = set.getString("SENTENCE");
+        String imgPath = set.getString("IMAGE_PATH");
+        boolean nsfw = set.getBoolean("NSFW");
+        int backlink = set.getInt("BACK_LINK");
 
         return new SentenceObject(sentenceKey, sourceType, sourceName, sourceURL, sentence, imgPath, nsfw, backlink);
     }
+
 
 
     public void insertWord() throws SQLException {

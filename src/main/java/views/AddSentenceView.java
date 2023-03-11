@@ -34,7 +34,15 @@ public class AddSentenceView {
         this.container = this.mainWindow.getContentContainer();
         this.layout = this.mainWindow.getLayout();
 
+        //TODO: Remove me after finished with setLink
+
         sentenceControl = createView();
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                new SetLinkView(mainWindow);
+            }
+        });
     }
 
     //TODO: Figure out a way to navigate between textAreas with tab, instead of tab being an input on the area
@@ -96,7 +104,6 @@ public class AddSentenceView {
         JLabel currentLinkStatusLabel = new JLabel("No Link");
         currentLinkStatusLabel.setFont(jpFont);
 
-        //TODO: Create function for setting a back link with an already saved sentence
         JButton setLinkButton = new JButton("Set Link");
         setLinkButton.setFont(jpFont);
         setLinkButton.addActionListener(new ActionListener() {

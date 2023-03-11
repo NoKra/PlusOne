@@ -20,7 +20,7 @@ public class WindowObject {
 
     public enum WindowSize {
         AddSentenceView(600, 850, true),
-        SetLinkView(800, 500, false);
+        SetLinkView(800, 900, false);
 
         private final int windowWidth;
         private final int windowHeight;
@@ -54,9 +54,9 @@ public class WindowObject {
         mainFrame.setResizable(false);
         if(windowSize.isMain) {
             mainFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+            mainFrame.setJMenuBar(menuBar);
         }
         mainFrame.setTitle("Plus One");
-        mainFrame.setJMenuBar(menuBar);
 
         contentContainer = mainFrame.getContentPane();
         contentContainer.setLayout(layout);

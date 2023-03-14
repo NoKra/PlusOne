@@ -20,7 +20,8 @@ public class WindowObject {
 
     public enum WindowSize {
         AddSentenceView(600, 850, true),
-        SetLinkView(800, 900, false);
+        SetLinkView(800, 900, false),
+        BrowseView(600, 600, true);
 
         private final int windowWidth;
         private final int windowHeight;
@@ -50,8 +51,8 @@ public class WindowObject {
         this.database = database;
         this.windowWidth = windowSize.windowWidth;
         this.windowHeight = windowSize.windowHeight;
-        changeWindowSize();
-        mainFrame.setResizable(false);
+        //changeWindowSize();
+        //mainFrame.setResizable(false);
         if(windowSize.isMain) {
             mainFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
             mainFrame.setJMenuBar(menuBar);
@@ -60,13 +61,19 @@ public class WindowObject {
 
         contentContainer = mainFrame.getContentPane();
         contentContainer.setLayout(layout);
-
         createMenuBar();
         //Must be instantiated after since nav goes to new window on new nav object, which also clears the container
         //but the container needs to be made first
         nav = new WindowNav(this);
-        setWindowVisible();
+        //setWindowVisible();
         centerWindow();
+    }
+    public JFrame getMainFrame() {
+        return mainFrame;
+    }
+
+    public void packFrame() {
+        mainFrame.pack();
     }
 
     public Database getDatabase() {
@@ -136,6 +143,10 @@ public class WindowObject {
                 database.loadBackupDatabase();
             }
         });
+    }
+
+    private void createNavBar() {
+        //TODO: work on creating a nav bar
     }
 
     private void verifyPurge(String targetTable) {
@@ -218,8 +229,16 @@ public class WindowObject {
         mainFrame.setVisible(true);
     }
 
+    public void setWindowInvisible() {
+        mainFrame.setVisible(false);
+    }
+
     public void showNewContent() {
         contentContainer.revalidate();
+    }
+
+    public void destroyWindow() {
+        mainFrame.dispose();
     }
 
 }

@@ -101,7 +101,7 @@ public class Database {
         try {
             dbConnection = DriverManager.getConnection(jdbcURL, username, password);
             maxSentenceIndex = findMaxSentenceIndex();
-            //TODO: implement finds for word and occurrences later
+            //TODO: implement finds max for word and occurrences later
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -243,12 +243,20 @@ public class Database {
         dbConnection.createStatement().execute(sql);
     }
 
-    public void insertSentence(String sourceType, String sourceName, String sourceUrl, String sentence,
-                               String imagePath, String nsfw, String backLink) throws SQLException {
-        maxSentenceIndex += 1;
+    public void insertSentence(SentenceObject sentence) throws SQLException {
+        int sqlKey = sentence.getSentenceKey();
+        String sqlType = "'" + sentence.getSourceType() + "'";
+        String sqlName = sentence.getSourceName().equals("") ? "NULL" : "'" + sentence.getSourceName() + "'";
+        String sqlUrl = sentence.getSourceUrl().equals("") ? "NULL" : "'" + sentence.getSourceUrl() + "'";
+        String sqlSentence = "'" + sentence.getSentence() + "'";
+        String sqlImagePath = sentence.getImagePath().equals("") ? "NULL" : "'" + sentence.getImagePath() + "'";
+        String sqlNsfw = sentence.getNsfwTag() ? "TRUE" : "FALSE";
+        int sqlBacklink = sentence.getBacklink();
+
         String sql = String.format("INSERT INTO SENTENCES VALUES ( " +
                         "%d, %s, %s, %s, %s, %s, %s, %s);",
-                maxSentenceIndex,sourceType, sourceName, sourceUrl, sentence, imagePath, nsfw, backLink);
+                sqlKey, sqlType, sqlName, sqlUrl, sqlSentence, sqlImagePath, sqlNsfw, sqlBacklink);
+        maxSentenceIndex ++;
         System.out.println(sql);
         dbConnection.createStatement().execute(sql);
     }
@@ -272,21 +280,14 @@ public class Database {
         return resultToSentenceObject(rs);
     }
 
-    public SentenceObject[] fetchMatchingSentences(String searchValue) throws SQLException{
-        //String sql = String.format("SELECT * FROM SENTENCES WHERE REGEXP_LIKE(SENTENCE, '%s[a-z]*');", searchValue);
-        String sql = String.format("SELECT COUNT(*) AS COUNT, * FROM SENTENCES WHERE REGEXP_LIKE(SENTENCE, '%s[a-z]*') GROUP BY SENTENCE;", searchValue);
+    public List<SentenceObject> fetchMatchingSentences(String searchValue) throws SQLException{
+        List<SentenceObject> foundSentences= new ArrayList<SentenceObject>();
+        String sql = String.format("SELECT * FROM SENTENCES WHERE REGEXP_LIKE(SENTENCE, '%s[a-z]*', 'i');", searchValue);
         ResultSet rs = dbConnection.createStatement().executeQuery(sql);
-        if(!rs.next()) {
-            System.out.println(rs);
-            return new SentenceObject[0];
+        while(rs.next()) {
+            foundSentences.add(resultToSentenceObject(rs));
         }
-        SentenceObject[] foundSentences = new SentenceObject[rs.getInt("COUNT")];
-        //TODO: Test with 'k' or some common pattern to see why going out of index
-        int index = 0;
-        do {
-            foundSentences[index] = resultToSentenceObject(rs);
-            index++;
-        } while(rs.next());
+        System.out.println("Finished search");
         return foundSentences;
     }
 

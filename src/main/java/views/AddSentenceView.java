@@ -22,9 +22,19 @@ public class AddSentenceView {
     private final Container container;
     private final SpringLayout layout;
     private final AddSentenceControl sentenceControl;
+    private SetLinkView setLinkView = null;
     private final int padding = 20;
     private final Font jpFont = new Font("Meiryo", Font.BOLD, 16);
     //TODO: Consider making a separate font for ui elements?
+    private JComboBox<String> sourceTypeCombo;
+    private JTextArea sourceNameArea;
+    private JTextArea sourceUrlArea;
+    private JTextArea sentenceArea;
+    private JCheckBox nsfwCheck;
+    private JTextArea imageArea;
+    private JLabel currentLinkStatusLabel;
+    private SentenceObject currentBacklink;
+
 
     private int fieldColumns = 33;
     //TODO: After setting up window sizing options, make some kind of relational to column count for textarea
@@ -34,18 +44,46 @@ public class AddSentenceView {
         this.container = this.mainWindow.getContentContainer();
         this.layout = this.mainWindow.getLayout();
 
-        //TODO: Remove me after finished with setLink
 
         sentenceControl = createView();
+        /*
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
                 new SetLinkView(mainWindow);
             }
         });
+         */
     }
 
-    //TODO: Figure out a way to navigate between textAreas with tab, instead of tab being an input on the area
+    public JComboBox<String> getSourceTypeCombo() {
+        return sourceTypeCombo;
+    }
+
+    public JTextArea getSourceNameArea () {
+        return sourceNameArea;
+    }
+
+    public JTextArea getSourceUrlArea() {
+        return sourceUrlArea;
+    }
+
+    public JTextArea getSentenceArea() {
+        return sentenceArea;
+    }
+
+    public JCheckBox getNsfwCheck() {
+        return nsfwCheck;
+    }
+
+    public JTextArea getImageArea() {
+        return imageArea;
+    }
+
+    public JLabel getCurrentLinkStatusLabel() {
+        return currentLinkStatusLabel;
+    }
+
     private AddSentenceControl createView() {
         //Window title
         JLabel header = new JLabel("Input Sentences: ");
@@ -74,7 +112,7 @@ public class AddSentenceView {
         container.add(sourceTypeLabel);
 
         String[] sourcesList = {"Visual Novel", "Manga", "Anime", "Online", "Newspaper", "Magazine"};
-        JComboBox<String> sourceTypeCombo = new JComboBox<>(sourcesList);
+        sourceTypeCombo = new JComboBox<>(sourcesList);
         sourceTypeCombo.setSelectedIndex(0);
         sourceTypeCombo.setFont(jpFont);
         layout.putConstraint(
@@ -101,7 +139,7 @@ public class AddSentenceView {
         JLabel linkStatusLabel = new JLabel("Back Link Status: ");
         linkStatusLabel.setFont(jpFont);
 
-        JLabel currentLinkStatusLabel = new JLabel("No Link");
+        currentLinkStatusLabel = new JLabel("No Link");
         currentLinkStatusLabel.setFont(jpFont);
 
         JButton setLinkButton = new JButton("Set Link");
@@ -109,7 +147,7 @@ public class AddSentenceView {
         setLinkButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new SetLinkView(mainWindow);
+                setLinkView = new SetLinkView(mainWindow, sentenceControl);
             }
         });
 
@@ -151,7 +189,7 @@ public class AddSentenceView {
         );
         container.add(hasUrlCheck);
 
-        JTextArea sourceNameArea = new JTextArea();
+        sourceNameArea = new JTextArea();
         sourceNameArea.setWrapStyleWord(false);
         sourceNameArea.setLineWrap(true);
         sourceNameArea.setColumns(fieldColumns);
@@ -173,7 +211,7 @@ public class AddSentenceView {
         JLabel sourceUrlLabel = new JLabel("URL: ");
         sourceUrlLabel.setFont(jpFont);
 
-        JTextArea sourceUrlArea = new JTextArea();
+        sourceUrlArea = new JTextArea();
         sourceUrlArea.setWrapStyleWord(false);
         sourceUrlArea.setLineWrap(true);
         sourceUrlArea.setColumns(fieldColumns);
@@ -194,7 +232,7 @@ public class AddSentenceView {
         );
         container.add(sentenceLabel);
 
-        JTextArea sentenceArea = new JTextArea();
+        sentenceArea = new JTextArea();
         sentenceArea.setWrapStyleWord(false);
         sentenceArea.setLineWrap(true);
         sentenceArea.setColumns(fieldColumns);
@@ -211,6 +249,10 @@ public class AddSentenceView {
         );
         container.add(sentenceArea);
 
+        JLabel sentenceRequiredLabel = new JLabel("Sentence Is Required");
+        sentenceRequiredLabel.setFont(jpFont);
+        sentenceRequiredLabel.setForeground(new Color(214, 67, 56));
+
         //Image Input
         JLabel imageLabel = new JLabel("Image:");
         imageLabel.setFont(jpFont);
@@ -224,7 +266,7 @@ public class AddSentenceView {
         );
         container.add(imageLabel);
 
-        JCheckBox nsfwCheck = new JCheckBox("NSFW");
+        nsfwCheck = new JCheckBox("NSFW");
         nsfwCheck.setFont(jpFont);
         layout.putConstraint(
                 SpringLayout.WEST, nsfwCheck, padding,
@@ -236,7 +278,19 @@ public class AddSentenceView {
         );
         container.add(nsfwCheck);
 
-        JTextArea imageArea = new JTextArea();
+        JButton setCapture = new JButton("Set Capture");
+        setCapture.setFont(jpFont);
+        layout.putConstraint(
+                SpringLayout.WEST, setCapture, padding,
+                SpringLayout.EAST, nsfwCheck
+        );
+        layout.putConstraint(
+                SpringLayout.VERTICAL_CENTER, setCapture, 0,
+                SpringLayout.VERTICAL_CENTER, nsfwCheck
+        );
+        container.add(setCapture);
+
+        imageArea = new JTextArea();
         imageArea.setWrapStyleWord(false);
         imageArea.setLineWrap(true);
         imageArea.setColumns(fieldColumns);
@@ -265,17 +319,65 @@ public class AddSentenceView {
                 SpringLayout.SOUTH, imageArea
         );
         container.add(addButton);
+        //Check to make sure the sentenceArea has some content, Sentence field on SentenceTable must be NON-NULL
+        final boolean[] goodAdd = {true};
         addButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                try {
-                    sentenceControl.addSentence();
-                    if(!currentLinkStatusLabel.getText().equals("No Link")) {
-                        currentLinkStatusLabel.setText(sentenceArea.getText());
+                if(!sentenceArea.getText().equals("")) {
+                    try {
+                        sentenceControl.addSentence();
+                        if(!currentLinkStatusLabel.getText().equals("No Link")) {
+                            currentLinkStatusLabel.setText(sentenceArea.getText());
+                        }
+                        if(!goodAdd[0]) {
+                            container.remove(sentenceRequiredLabel);
+                            layout.putConstraint(
+                                    SpringLayout.NORTH, imageLabel, padding,
+                                    SpringLayout.SOUTH, sentenceArea
+                            );
+                            layout.putConstraint(
+                                    SpringLayout.NORTH, nsfwCheck, padding,
+                                    SpringLayout.SOUTH, sentenceArea
+                            );
+                            container.repaint();
+                            container.revalidate();
+                        }
+                        sentenceArea.setText("");
+                        imageArea.setText("");
+                    } catch (SQLException ex) {
+                        throw new RuntimeException(ex);
                     }
-                } catch (SQLException ex) {
-                    throw new RuntimeException(ex);
                 }
+                else {
+                    goodAdd[0] = false;
+                    layout.putConstraint(
+                            SpringLayout.WEST, sentenceRequiredLabel, padding,
+                            SpringLayout.WEST, container
+                    );
+                    layout.putConstraint(
+                            SpringLayout.NORTH, sentenceRequiredLabel, padding,
+                            SpringLayout.SOUTH, sentenceArea
+                    );
+                    container.add(sentenceRequiredLabel);
+
+                    layout.putConstraint(
+                            SpringLayout.NORTH, imageLabel, padding,
+                            SpringLayout.SOUTH, sentenceRequiredLabel
+                    );
+                    layout.putConstraint(
+                            SpringLayout.NORTH, nsfwCheck, padding,
+                            SpringLayout.SOUTH, sentenceRequiredLabel
+                    );
+                    /*
+                    layout.putConstraint(
+                            SpringLayout.NORTH, setCapture, padding,
+                            SpringLayout.SOUTH, sentenceRequiredLabel
+                    );
+                     */
+                }
+                container.repaint();
+                container.revalidate();
             }
         });
         sourceNameArea.addKeyListener(new KeyAdapter() {
@@ -301,8 +403,14 @@ public class AddSentenceView {
                 }
             }
         });
-        //TODO: add sentence to image tab action
-
+        sentenceArea.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if(e.getKeyCode() == KeyEvent.VK_TAB) {
+                    imageArea.requestFocus();
+                }
+            }
+        });
 
         sequentialCheck.addActionListener(new ActionListener() {
             @Override
@@ -431,14 +539,13 @@ public class AddSentenceView {
                 container.revalidate();
             }
         });
-        return new AddSentenceControl(mainWindow.getDatabase(), sourceTypeCombo, sourceNameArea, sourceUrlArea, sentenceArea,
-                nsfwCheck, imageArea, currentLinkStatusLabel);
+        return new AddSentenceControl(this, mainWindow.getDatabase());
     }
 
     private void setHeadClicked(JLabel currentBackLink) {
-        //TODO: Create a way to unset the head (mistake made)
         currentBackLink.setText("Head");
         currentBackLink.setForeground(new Color(126, 214, 92));
+
     }
 
     private void checkFonts() {

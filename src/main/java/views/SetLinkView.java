@@ -1,5 +1,6 @@
 package views;
 
+import controllers.AddSentenceControl;
 import controllers.SetLinkController;
 import window_object.WindowObject;
 
@@ -15,29 +16,38 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
 public class SetLinkView {
+    private final AddSentenceControl addSentenceControl;
     private final WindowObject setWindow;
     private final Container container;
     private final SpringLayout layout;
     private final Font jpFont = new Font("Meiryo", Font.BOLD, 16);
     private final int padding = 20;
+    //Disables editing for all cells
     DefaultTableModel linkTableModel = new DefaultTableModel(){
         public boolean isCellEditable(int row, int column) {
             return false;
         }
     };
+    private JTable sentenceTable;
+    private final int tableWidth;
+    private final int tableHeight;
     private final SetLinkController linkController;
 
-    public SetLinkView(WindowObject mainWindow) {
-
+    public SetLinkView(WindowObject mainWindow, AddSentenceControl addSentenceControl) {
+        this.addSentenceControl = addSentenceControl;
         setWindow = new WindowObject(mainWindow.getDatabase(), WindowObject.WindowSize.SetLinkView);
         container = setWindow.getContentContainer();
         layout = setWindow.getLayout();
+        tableWidth = setWindow.getWindowWidth() - (padding * 2);
+        tableHeight = setWindow.getWindowHeight() / 3;
 
         setWindow.setWindowVisible();
-
-        linkController = new SetLinkController(mainWindow.getDatabase(), linkTableModel);
-
+        linkController = new SetLinkController(mainWindow.getDatabase(), this);
         createView();
+    }
+
+    public DefaultTableModel getLinkTableModel() {
+        return linkTableModel;
     }
 
     private void createView() {
@@ -67,17 +77,10 @@ public class SetLinkView {
                 SpringLayout.VERTICAL_CENTER, searchLabel
         );
         container.add(searchField);
-        searchField.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyPressed(KeyEvent e) {
-                if(e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    linkController.sentenceSearch(searchField.getText());
-                }
-            }
-        });
+
 
         //Table
-        JTable sentenceTable = new JTable(linkTableModel);
+        sentenceTable = new JTable(linkTableModel);
         sentenceTable.setFont(jpFont);
         ListSelectionModel selectionModel = sentenceTable.getSelectionModel();
         selectionModel.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -93,11 +96,17 @@ public class SetLinkView {
                 }
             }
         });
-        JScrollPane tableScroll = new JScrollPane(sentenceTable);
-        tableScroll.setPreferredSize(
-                new Dimension(setWindow.getWindowWidth() - (padding * 2), setWindow.getWindowHeight() / 3));
-        linkController.initializeTable();
+        searchField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if(e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    linkController.sentenceSearch(searchField.getText());
+                }
+            }
+        });
 
+        JScrollPane tableScroll = new JScrollPane(sentenceTable);
+        tableScroll.setPreferredSize(new Dimension(tableWidth, tableHeight));
         layout.putConstraint(
                 SpringLayout.HORIZONTAL_CENTER, tableScroll, 0,
                 SpringLayout.HORIZONTAL_CENTER, container
@@ -268,7 +277,7 @@ public class SetLinkView {
         selectBacklinkButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                linkController.selectBacklink();
+                linkController.selectSelectedBacklink();
             }
         });
         selectBacklinkButton.setEnabled(false);
@@ -297,8 +306,18 @@ public class SetLinkView {
         );
         container.add(selectLinkButton);
 
+        selectLinkButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                addSentenceControl.setBacklinkId(Integer.parseInt(idValueLabel.getText()), sentenceValueArea.getText());
+                setWindow.destroyWindow();
+            }
+        });
+
         linkController.setComponents(sentenceTable, idValueLabel, typeValueLabel, nameValueLabel,
                 urlValueLabel, sentenceValueArea, selectBacklinkButton, linkValueLabel);
+        linkController.initializeTable();
+        sizeTable();
     }
 
     private static class NoBorderRenderer extends DefaultTableCellRenderer {
@@ -309,5 +328,21 @@ public class SetLinkView {
             setBorder(noFocusBorder);
             return this;
         }
+    }
+
+    private void sizeTable() {
+        int columns = sentenceTable.getColumnCount();
+        System.out.println(tableWidth);
+        for(int i = 0; i < columns; i++) {
+            sentenceTable.getColumnModel().getColumn(i).setMaxWidth(tableWidth);
+            sentenceTable.getColumnModel().getColumn(i).setMinWidth(tableWidth / 100);
+        }
+        sentenceTable.getColumnModel().getColumn(0).setPreferredWidth(tableWidth / 20);
+        sentenceTable.getColumnModel().getColumn(1).setPreferredWidth(tableWidth / 10);
+        sentenceTable.getColumnModel().getColumn(2).setPreferredWidth(tableWidth / 5);
+        sentenceTable.getColumnModel().getColumn(3).setPreferredWidth(tableWidth / 10);
+        sentenceTable.getColumnModel().getColumn(4).setPreferredWidth(tableWidth);
+        sentenceTable.getColumnModel().getColumn(5).setPreferredWidth(tableWidth / 20);
+
     }
 }

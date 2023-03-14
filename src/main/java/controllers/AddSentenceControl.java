@@ -1,6 +1,8 @@
 package controllers;
 
+import content_objects.SentenceObject;
 import database.Database;
+import views.AddSentenceView;
 
 import javax.swing.*;
 import java.sql.SQLException;
@@ -18,32 +20,38 @@ public class AddSentenceControl {
     private int backlinkId;
 
 
-    public AddSentenceControl(Database database, JComboBox<String> sourceType,  JTextArea sourceName, JTextArea sourceURL,
-                              JTextArea sentence, JCheckBox nsfwTag, JTextArea imageLink, JLabel backLink) {
+
+    public AddSentenceControl(AddSentenceView addSentenceView, Database database) {
         this.database = database;
-        this.sourceType = sourceType;
-        this.sourceName = sourceName;
-        this.sourceURL = sourceURL;
-        this.sentence = sentence;
-        this.nsfwTag = nsfwTag;
-        this.imageLink = imageLink;
-        this.backlinkLabel = backLink;
+        this.sourceType = addSentenceView.getSourceTypeCombo();
+        this.sourceName = addSentenceView.getSourceNameArea();
+        this.sourceURL = addSentenceView.getSourceUrlArea();
+        this.sentence = addSentenceView.getSentenceArea();
+        this.nsfwTag = addSentenceView.getNsfwCheck();
+        this.imageLink = addSentenceView.getImageArea();
+        this.backlinkLabel = addSentenceView.getCurrentLinkStatusLabel();
+        backlinkId = -1;
     }
 
     public void addSentence() throws SQLException {
-        String type = "'" + Objects.requireNonNull(sourceType.getSelectedItem()).toString() + "'";
-        String name = "'" + sourceName.getText() + "'";
-        String url = sourceURL.getText().equals("") ? "NULL" : "'" + sourceURL.getText() + "'";
-        String sent = "'" + sentence.getText() + "'";
-        String image = imageLink.getText().equals("") ? "NULL" : "'" + imageLink.getText() + "'";
-        String nsfw = nsfwTag.isSelected() ? "TRUE" : "FALSE";
-        String link = backlinkLabel.getText().equals("No Link") || backlinkLabel.getText().equals("Head") ?
-                "NULL" : String.valueOf(backlinkId);
+        backlinkId = !backlinkLabel.getText().equals("No Link") && !backlinkLabel.getText().equals("Head") ?
+                database.getMaxSentenceIndex() : -1;
+        SentenceObject insertObject = new SentenceObject(
+                database.getMaxSentenceIndex() + 1,
+                Objects.requireNonNull(sourceType.getSelectedItem()).toString(),
+                sourceName.getText(),
+                sourceURL.getText(),
+                sentence.getText(),
+                imageLink.getText(),
+                nsfwTag.isSelected(),
+                backlinkId
+        );
+        database.insertSentence(insertObject);
+    }
 
-        database.insertSentence(type, name, url, sent, image, nsfw, link);
-        if(!backlinkLabel.getText().equals("No LInk")) {
-            backlinkId = database.getMaxSentenceIndex();
-        }
+    public void setBacklinkId(int backlinkId, String backLinkText) {
+        this.backlinkId = backlinkId;
+        this.backlinkLabel.setText(backLinkText);
     }
 
     //TODO: How to reference and save images

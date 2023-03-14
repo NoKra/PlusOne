@@ -1,6 +1,7 @@
 package window_object;
 
 import views.AddSentenceView;
+import views.BrowseView;
 import views.SetLinkView;
 
 public class WindowNav {
@@ -17,11 +18,10 @@ public class WindowNav {
         mainWindow.showNewContent();
     }
 
-    public void toSetLink() {
+    public void toBrowse() {
         mainWindow.clearWindow();
-        new SetLinkView(mainWindow);
+        new BrowseView(mainWindow);
         mainWindow.showNewContent();
     }
-
 
 }

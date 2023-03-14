@@ -1,6 +1,7 @@
 import database.Database;
 import window_object.WindowObject;
 
+import javax.swing.*;
 import java.sql.SQLException;
 
 
@@ -9,10 +10,13 @@ public class Main {
 
     public static void main(String[] args) throws SQLException {
         database = startDatabase();
-        WindowObject mainWindow = new WindowObject(database, WindowObject.WindowSize.AddSentenceView);
-        mainWindow.getNav().toAddSentence();
-
-
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                WindowObject mainWindow = new WindowObject(database, WindowObject.WindowSize.BrowseView);
+                mainWindow.getNav().toBrowse();
+            }
+        });
     }
 
     public static Database startDatabase() throws SQLException {

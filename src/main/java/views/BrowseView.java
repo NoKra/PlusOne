@@ -13,119 +13,39 @@ public class BrowseView {
 
     public BrowseView(WindowObject mainWindow) {
         this.mainWindow = mainWindow;
-        this.container = this.mainWindow.getContentContainer();
+        this.container = this.mainWindow.getContainer();
         this.layout = this.mainWindow.getLayout();
 
         createView();
     }
 
     public void createView() {
+        JPanel navPanel = mainWindow.createNavPanel();
+        JPanel contentPanel = mainWindow.createContentPanel(navPanel);
+        SpringLayout contentLayout = (SpringLayout)contentPanel.getLayout();
 
-        JPanel navPanel = createNavbar();
+        JLabel something = new JLabel("Something here");
+        contentLayout.putConstraint(
+                SpringLayout.WEST, something, padding,
+                SpringLayout.WEST, contentPanel
+        );
+        contentLayout.putConstraint(
+                SpringLayout.NORTH, something, padding,
+                SpringLayout.NORTH, contentPanel
+        );
+        contentPanel.add(something);
 
-        layout.putConstraint(
-                SpringLayout.NORTH, navPanel, 0,
-                SpringLayout.NORTH, container
+        contentLayout.putConstraint(
+                SpringLayout.EAST, contentPanel, padding,
+                SpringLayout.EAST, something
         );
-        layout.putConstraint(
-                SpringLayout.SOUTH, container, 0,
-                SpringLayout.SOUTH, navPanel
+        contentLayout.putConstraint(
+                SpringLayout.SOUTH, contentPanel, padding,
+                SpringLayout.SOUTH, something
         );
-
-        layout.putConstraint(
-                SpringLayout.HORIZONTAL_CENTER, navPanel, 0,
-                SpringLayout.HORIZONTAL_CENTER, container
-        );
-        /*
-
-        layout.putConstraint(
-                SpringLayout.WEST, navPanel, 0,
-                SpringLayout.WEST, container
-        );
-        layout.putConstraint(
-                SpringLayout.EAST, container, 0,
-                SpringLayout.EAST, navPanel
-        );
-         */
-        container.add(navPanel);
-
 
         mainWindow.packFrame();
-        mainWindow.setWindowVisible();
+        mainWindow.getMainFrame().setMinimumSize(new Dimension(navPanel.getWidth(), navPanel.getHeight()));
     }
 
-    public JPanel createNavbar() {
-
-        JPanel buttonPanel = new JPanel();
-        SpringLayout buttonLayout = new SpringLayout();
-        buttonPanel.setLayout(buttonLayout);
-
-        JButton mainButton = new JButton("Main");
-        buttonLayout.putConstraint(
-                SpringLayout.WEST, mainButton, padding,
-                SpringLayout.WEST, buttonPanel
-        );
-        buttonLayout.putConstraint(
-                SpringLayout.NORTH, mainButton, padding,
-                SpringLayout.NORTH, buttonPanel
-        );
-        buttonPanel.add(mainButton);
-
-        JButton browseButton = new JButton("Browse");
-        buttonLayout.putConstraint(
-                SpringLayout.WEST, browseButton, padding,
-                SpringLayout.EAST, mainButton
-        );
-        buttonLayout.putConstraint(
-                SpringLayout.NORTH, browseButton, padding,
-                SpringLayout.NORTH, buttonPanel
-        );
-        buttonPanel.add(browseButton);
-
-        JButton addButton = new JButton("Add");
-        buttonLayout.putConstraint(
-                SpringLayout.WEST, addButton, padding,
-                SpringLayout.EAST, browseButton
-        );
-        buttonLayout.putConstraint(
-                SpringLayout.NORTH, addButton, padding,
-                SpringLayout.NORTH, buttonPanel
-        );
-        buttonPanel.add(addButton);
-
-        buttonLayout.putConstraint(
-                SpringLayout.EAST, buttonPanel, padding,
-                SpringLayout.EAST, addButton
-        );
-        buttonLayout.putConstraint(
-                SpringLayout.SOUTH, buttonPanel, padding,
-                SpringLayout.SOUTH, browseButton
-        );
-
-        JPanel navPanel = new JPanel();
-        SpringLayout navLayout = new SpringLayout();
-        navPanel.setLayout(navLayout);
-
-
-        navLayout.putConstraint(
-                SpringLayout.WEST, buttonPanel, 0,
-                SpringLayout.WEST, navPanel
-        );
-        navLayout.putConstraint(
-                SpringLayout.EAST, navPanel, 0,
-                SpringLayout.EAST, buttonPanel
-        );
-        navLayout.putConstraint(
-                SpringLayout.NORTH, buttonPanel, 0,
-                SpringLayout.NORTH, navPanel
-        );
-
-        navLayout.putConstraint(
-                SpringLayout.SOUTH, navPanel, 0,
-                SpringLayout.SOUTH, buttonPanel
-        );
-        navPanel.add(buttonPanel);
-
-        return navPanel;
-    }
 }

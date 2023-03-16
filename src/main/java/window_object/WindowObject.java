@@ -10,63 +10,26 @@ import java.sql.SQLException;
 
 public class WindowObject {
     private final Database database;
-    private final JFrame mainFrame;
-    private final Container contentContainer;
+    private final JFrame mainFrame = new JFrame();
+    private final Container container = mainFrame.getContentPane();
     private final SpringLayout layout = new SpringLayout();
     private final JMenuBar menuBar = new JMenuBar();
     private final WindowNav nav;
-    private int windowHeight;
-    private int windowWidth;
+    private final int padding = 20;
 
-    public enum WindowSize {
-        AddSentenceView(600, 850, true),
-        SetLinkView(800, 900, false),
-        BrowseView(600, 600, true);
-
-        private final int windowWidth;
-        private final int windowHeight;
-        private final Boolean isMain;
-
-        WindowSize(int windowWidth, int windowHeight, boolean isMain) {
-            this.windowWidth = windowWidth;
-            this.windowHeight = windowHeight;
-            this.isMain = isMain;
-        }
-
-        public int getWindowWidth() {
-            return windowWidth;
-        }
-
-        public int getWindowHeight() {
-            return windowHeight;
-        }
-
-        public boolean getIsMain() {
-            return isMain;
-        }
-    }
-
-    public WindowObject(Database database, WindowSize windowSize) {
-        mainFrame = new JFrame();
+    public WindowObject(Database database, boolean isMain) {
         this.database = database;
-        this.windowWidth = windowSize.windowWidth;
-        this.windowHeight = windowSize.windowHeight;
-        //changeWindowSize();
-        //mainFrame.setResizable(false);
-        if(windowSize.isMain) {
+        if(isMain) {
             mainFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
             mainFrame.setJMenuBar(menuBar);
         }
         mainFrame.setTitle("Plus One");
-
-        contentContainer = mainFrame.getContentPane();
-        contentContainer.setLayout(layout);
-        createMenuBar();
-        //Must be instantiated after since nav goes to new window on new nav object, which also clears the container
-        //but the container needs to be made first
+        container.setLayout(layout);
+        //Window Object must be instantiated before nav object, as nav object requires WindowObject as parameter
         nav = new WindowNav(this);
-        //setWindowVisible();
+        createMenuBar();
         centerWindow();
+        setWindowVisible();
     }
     public JFrame getMainFrame() {
         return mainFrame;
@@ -80,8 +43,8 @@ public class WindowObject {
         return database;
     }
 
-    public Container getContentContainer() {
-        return contentContainer;
+    public Container getContainer() {
+        return container;
     }
 
     public SpringLayout getLayout() {
@@ -90,14 +53,6 @@ public class WindowObject {
 
     public WindowNav getNav() {
         return nav;
-    }
-
-    public int getWindowWidth() {
-        return windowWidth;
-    }
-
-    public int getWindowHeight() {
-        return windowHeight;
     }
 
     private void createMenuBar() {
@@ -145,9 +100,134 @@ public class WindowObject {
         });
     }
 
-    private void createNavBar() {
-        //TODO: work on creating a nav bar
+    public JPanel createNavPanel() {
+        JPanel navPanel = new JPanel();
+        SpringLayout buttonLayout = new SpringLayout();
+        navPanel.setLayout(buttonLayout);
+
+        JButton mainButton = new JButton("Main");
+        buttonLayout.putConstraint(
+                SpringLayout.WEST, mainButton, padding,
+                SpringLayout.WEST, navPanel
+        );
+        buttonLayout.putConstraint(
+                SpringLayout.NORTH, mainButton, padding,
+                SpringLayout.NORTH, navPanel
+        );
+        navPanel.add(mainButton);
+
+
+        JButton browseButton = new JButton("Browse");
+        buttonLayout.putConstraint(
+                SpringLayout.WEST, browseButton, padding,
+                SpringLayout.EAST, mainButton
+        );
+        buttonLayout.putConstraint(
+                SpringLayout.NORTH, browseButton, padding,
+                SpringLayout.NORTH, navPanel
+        );
+        navPanel.add(browseButton);
+
+        JButton addButton = new JButton("Add");
+        buttonLayout.putConstraint(
+                SpringLayout.WEST, addButton, padding,
+                SpringLayout.EAST, browseButton
+        );
+        buttonLayout.putConstraint(
+                SpringLayout.NORTH, addButton, padding,
+                SpringLayout.NORTH, navPanel
+        );
+        navPanel.add(addButton);
+
+
+        buttonLayout.putConstraint(
+                SpringLayout.EAST, navPanel, padding,
+                SpringLayout.EAST, addButton
+        );
+        buttonLayout.putConstraint(
+                SpringLayout.SOUTH, navPanel, padding,
+                SpringLayout.SOUTH, addButton
+        );
+
+        layout.putConstraint(
+                SpringLayout.NORTH, navPanel, 0,
+                SpringLayout.NORTH, container
+        );
+
+        layout.putConstraint(
+                SpringLayout.HORIZONTAL_CENTER, navPanel, 0,
+                SpringLayout.HORIZONTAL_CENTER, container
+        );
+        container.add(navPanel);
+
+        layout.putConstraint(
+                SpringLayout.SOUTH, container, 0,
+                SpringLayout.SOUTH, navPanel
+        );
+
+        mainButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                nav.toMain();
+            }
+        });
+        browseButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                nav.toBrowse();
+            }
+        });
+        addButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                nav.toAddSentence();
+            }
+        });
+
+        return navPanel;
     }
+
+    public JPanel createContentPanel() {
+        JPanel contentPanel = new JPanel();
+        contentPanel.setLayout(new SpringLayout());
+        container.add(contentPanel);
+
+        layout.putConstraint(
+                SpringLayout.HORIZONTAL_CENTER, contentPanel, 0,
+                SpringLayout.HORIZONTAL_CENTER, container
+        );
+        layout.putConstraint(
+                SpringLayout.NORTH, contentPanel, 0,
+                SpringLayout.NORTH, container
+        );
+        layout.putConstraint(
+                SpringLayout.SOUTH, container, 0,
+                SpringLayout.SOUTH, contentPanel
+        );
+        return contentPanel;
+    }
+
+
+    public JPanel createContentPanel(JPanel navPanel) {
+        JPanel contentPanel = new JPanel();
+        contentPanel.setLayout(new SpringLayout());
+        container.add(contentPanel);
+
+        layout.putConstraint(
+                SpringLayout.HORIZONTAL_CENTER, contentPanel, 0,
+                SpringLayout.HORIZONTAL_CENTER, container
+        );
+        layout.putConstraint(
+                SpringLayout.NORTH, contentPanel, 0,
+                SpringLayout.SOUTH, navPanel
+        );
+        layout.putConstraint(
+                SpringLayout.SOUTH, container, 0,
+                SpringLayout.SOUTH, contentPanel
+        );
+        return contentPanel;
+    }
+
 
     private void verifyPurge(String targetTable) {
         JDialog confirmPurge = new JDialog(mainFrame, "Confirm Purge");
@@ -212,13 +292,9 @@ public class WindowObject {
         confirmPurge.setVisible(true);
     }
 
-    public void changeWindowSize() {
-        mainFrame.setSize(windowWidth, windowHeight);
-    }
-
     public void clearWindow() {
-        contentContainer.removeAll();
-        contentContainer.repaint();
+        container.removeAll();
+        container.repaint();
     }
 
     public void centerWindow() {
@@ -229,16 +305,12 @@ public class WindowObject {
         mainFrame.setVisible(true);
     }
 
-    public void setWindowInvisible() {
-        mainFrame.setVisible(false);
+    public void destroyWindow() {
+        mainFrame.dispose();
     }
 
     public void showNewContent() {
-        contentContainer.revalidate();
-    }
-
-    public void destroyWindow() {
-        mainFrame.dispose();
+        container.revalidate();
     }
 
 }

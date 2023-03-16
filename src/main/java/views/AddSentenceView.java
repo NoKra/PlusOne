@@ -3,10 +3,8 @@ package views;
 
 import content_objects.SentenceObject;
 import controllers.AddSentenceControl;
-import org.h2.expression.function.SysInfoFunction;
 import window_object.WindowObject;
 
-import javax.sound.midi.SysexMessage;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -14,8 +12,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.sql.SQLException;
-import java.util.Objects;
-import java.util.Set;
 
 public class AddSentenceView {
     private final WindowObject mainWindow;
@@ -26,14 +22,25 @@ public class AddSentenceView {
     private final int padding = 20;
     private final Font jpFont = new Font("Meiryo", Font.BOLD, 16);
     //TODO: Consider making a separate font for ui elements?
-    private JComboBox<String> sourceTypeCombo;
-    private JTextArea sourceNameArea;
+
+
+    private final JLabel sourceTypeLabel = new JLabel("Source Type: ");
+    private final String[] sourcesList = {"Visual Novel", "Manga", "Anime", "Online", "Newspaper", "Magazine"};
+    private final JComboBox<String> sourceTypeCombo = new JComboBox<>(sourcesList);
+    private final JCheckBox sequentialCheck = new JCheckBox("Is Sequential");
+    private final JLabel linkStatusLabel = new JLabel("Back Link Status: ");
+    private final JLabel currentLinkStatusLabel = new JLabel("No Link");
+    private final JButton setLinkButton = new JButton("Set Link");
+    private final JButton viewLinkButton = new JButton("View Link");
+    private final JButton setHeadButton = new JButton("Set Head");
+    private final JLabel sourceNameLabel = new JLabel("Source Name: ");
+    private final JCheckBox hasUrlCheck = new JCheckBox("Has URL");
+
+    private final JTextArea sourceNameArea = new JTextArea();
     private JTextArea sourceUrlArea;
     private JTextArea sentenceArea;
     private JCheckBox nsfwCheck;
     private JTextArea imageArea;
-    private JLabel currentLinkStatusLabel;
-    private SentenceObject currentBacklink;
 
 
     private int fieldColumns = 33;
@@ -41,7 +48,7 @@ public class AddSentenceView {
 
     public AddSentenceView(WindowObject mainWindow) {
         this.mainWindow = mainWindow;
-        this.container = this.mainWindow.getContentContainer();
+        this.container = this.mainWindow.getContainer();
         this.layout = this.mainWindow.getLayout();
 
 
@@ -85,126 +92,79 @@ public class AddSentenceView {
     }
 
     private AddSentenceControl createView() {
-        //Window title
-        JLabel header = new JLabel("Input Sentences: ");
-        header.setFont(jpFont);
-        layout.putConstraint(
-                SpringLayout.WEST, header, padding,
-                SpringLayout.WEST, container
+
+        JPanel navPanel = mainWindow.createNavPanel();
+        JPanel contentPanel = mainWindow.createContentPanel(navPanel);
+        SpringLayout contentLayout = (SpringLayout)contentPanel.getLayout();
+
+        JPanel sourceTypePanel = createSourceTypePanel();
+        contentLayout.putConstraint(
+                SpringLayout.WEST, sourceTypePanel, 0,
+                SpringLayout.WEST, contentPanel
         );
-        layout.putConstraint(
-                SpringLayout.NORTH, header, padding,
-                SpringLayout.NORTH, container
+        contentLayout.putConstraint(
+                SpringLayout.NORTH, sourceTypePanel, 0,
+                SpringLayout.NORTH, contentPanel
         );
-        container.add(header);
+        contentPanel.add(sourceTypePanel);
 
-        //Sources Options
-        JLabel sourceTypeLabel = new JLabel("Source Type: ");
-        sourceTypeLabel.setFont(jpFont);
-        layout.putConstraint(
-                SpringLayout.WEST, sourceTypeLabel, padding,
-                SpringLayout.WEST, container
+        JPanel backlinkPanel = createBacklinkPanel();
+        contentLayout.putConstraint(
+                SpringLayout.WEST, backlinkPanel, 0,
+                SpringLayout.WEST, contentPanel
         );
-        layout.putConstraint(
-                SpringLayout.NORTH, sourceTypeLabel, padding,
-                SpringLayout.SOUTH, header
+        contentLayout.putConstraint(
+                SpringLayout.NORTH, backlinkPanel, 0,
+                SpringLayout.SOUTH, sourceTypePanel
         );
-        container.add(sourceTypeLabel);
+        contentPanel.add(backlinkPanel);
 
-        String[] sourcesList = {"Visual Novel", "Manga", "Anime", "Online", "Newspaper", "Magazine"};
-        sourceTypeCombo = new JComboBox<>(sourcesList);
-        sourceTypeCombo.setSelectedIndex(0);
-        sourceTypeCombo.setFont(jpFont);
-        layout.putConstraint(
-                SpringLayout.WEST, sourceTypeCombo, padding,
-                SpringLayout.EAST, sourceTypeLabel);
-        layout.putConstraint(
-                SpringLayout.VERTICAL_CENTER, sourceTypeCombo, 0,
-                SpringLayout.VERTICAL_CENTER, sourceTypeLabel);
-        container.add(sourceTypeCombo);
-
-        JCheckBox sequentialCheck = new JCheckBox("Is Sequential");
-        sequentialCheck.setFont(jpFont);
-        layout.putConstraint(
-                SpringLayout.WEST, sequentialCheck, padding,
-                SpringLayout.EAST, sourceTypeCombo
+        JPanel sourceNamePanel = createSourceNamePanel();
+        contentLayout.putConstraint(
+                SpringLayout.WEST, sourceNamePanel, 0,
+                SpringLayout.WEST, contentPanel
         );
-        layout.putConstraint(
-                SpringLayout.VERTICAL_CENTER, sequentialCheck, 0,
-                SpringLayout.VERTICAL_CENTER, sourceTypeCombo
+        contentLayout.putConstraint(
+                SpringLayout.NORTH, sourceNamePanel, 0,
+                SpringLayout.SOUTH, backlinkPanel
         );
-        container.add(sequentialCheck);
+        contentPanel.add(sourceNamePanel);
 
-        //Back Link Status, positioning is determined by sequential check status
-        JLabel linkStatusLabel = new JLabel("Back Link Status: ");
-        linkStatusLabel.setFont(jpFont);
 
-        currentLinkStatusLabel = new JLabel("No Link");
-        currentLinkStatusLabel.setFont(jpFont);
-
-        JButton setLinkButton = new JButton("Set Link");
-        setLinkButton.setFont(jpFont);
-        setLinkButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                setLinkView = new SetLinkView(mainWindow, sentenceControl);
-            }
-        });
-
-        //TODO: Create function for viewing the currently set backlink
-        JButton viewLinkButton = new JButton("View Link");
-        viewLinkButton.setFont(jpFont);
-
-        JButton setHeadButton = new JButton("Set Head");
-        setHeadButton.setFont(jpFont);
-        setHeadButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                setHeadClicked(currentLinkStatusLabel);
-            }
-        });
-
-        //Source Name
-        JLabel sourceNameLabel = new JLabel("Source Name: ");
-        sourceNameLabel.setFont(jpFont);
-        layout.putConstraint(
-                SpringLayout.WEST, sourceNameLabel, padding,
-                SpringLayout.WEST, container
+        //Constraints for EAST and SOUTH of contentPanel, EAST must be widest panel and SOUTH must be bottom panel
+        JPanel bottomPanel = new JPanel();
+        contentLayout.putConstraint(
+                SpringLayout.NORTH, bottomPanel, 0,
+                SpringLayout.SOUTH, sourceNamePanel
         );
-        layout.putConstraint(
-                SpringLayout.NORTH, sourceNameLabel, padding,
-                SpringLayout.SOUTH, sourceTypeLabel
+        contentLayout.putConstraint(
+                SpringLayout.WEST, bottomPanel, 0,
+                SpringLayout.WEST, contentPanel
         );
-        container.add(sourceNameLabel);
 
-        JCheckBox hasUrlCheck = new JCheckBox("Has URL");
+        contentLayout.putConstraint(
+                SpringLayout.EAST, contentPanel, 0,
+                SpringLayout.EAST,  sourceTypePanel
+        );
+        contentLayout.putConstraint(
+                SpringLayout.SOUTH, contentPanel, 0,
+                SpringLayout.SOUTH, bottomPanel
+        );
+
+
+
+        mainWindow.packFrame();
+        mainWindow.getMainFrame().setMinimumSize(
+                new Dimension(contentPanel.getWidth() * 2, contentPanel.getHeight() + navPanel.getHeight() * 2));
+        contentPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Color.BLACK));
+
+        return new AddSentenceControl(this, mainWindow.getDatabase());
+    }
+
+    private AddSentenceControl createView1() {
+
         hasUrlCheck.setFont(jpFont);
-        layout.putConstraint(
-                SpringLayout.WEST, hasUrlCheck, padding,
-                SpringLayout.EAST, sourceNameLabel
-        );
-        layout.putConstraint(
-                SpringLayout.VERTICAL_CENTER, hasUrlCheck, 0,
-                SpringLayout.VERTICAL_CENTER, sourceNameLabel
-        );
-        container.add(hasUrlCheck);
 
-        sourceNameArea = new JTextArea();
-        sourceNameArea.setWrapStyleWord(false);
-        sourceNameArea.setLineWrap(true);
-        sourceNameArea.setColumns(fieldColumns);
-        sourceNameArea.setRows(1);
-        sourceNameArea.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-        sourceNameArea.setFont(jpFont);
-        layout.putConstraint(
-                SpringLayout.HORIZONTAL_CENTER, sourceNameArea, 0,
-                SpringLayout.HORIZONTAL_CENTER, container
-        );
-        layout.putConstraint(
-                SpringLayout.NORTH, sourceNameArea, padding,
-                SpringLayout.SOUTH, sourceNameLabel
-        );
-        container.add(sourceNameArea);
 
 
         //URL Input
@@ -222,15 +182,7 @@ public class AddSentenceView {
         //Sentence Input
         JLabel sentenceLabel = new JLabel("Sentence:");
         sentenceLabel.setFont(jpFont);
-        layout.putConstraint(
-                SpringLayout.WEST, sentenceLabel, padding,
-                SpringLayout.WEST, container
-        );
-        layout.putConstraint(
-                SpringLayout.NORTH, sentenceLabel, padding,
-                SpringLayout.SOUTH, sourceNameArea
-        );
-        container.add(sentenceLabel);
+
 
         sentenceArea = new JTextArea();
         sentenceArea.setWrapStyleWord(false);
@@ -239,15 +191,7 @@ public class AddSentenceView {
         sentenceArea.setRows(7);
         sentenceArea.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         sentenceArea.setFont(jpFont);
-        layout.putConstraint(
-                SpringLayout.HORIZONTAL_CENTER, sentenceArea, 0,
-                SpringLayout.HORIZONTAL_CENTER, container
-        );
-        layout.putConstraint(
-                SpringLayout.NORTH, sentenceArea, padding,
-                SpringLayout.SOUTH, sentenceLabel
-        );
-        container.add(sentenceArea);
+
 
         JLabel sentenceRequiredLabel = new JLabel("Sentence Is Required");
         sentenceRequiredLabel.setFont(jpFont);
@@ -256,39 +200,15 @@ public class AddSentenceView {
         //Image Input
         JLabel imageLabel = new JLabel("Image:");
         imageLabel.setFont(jpFont);
-        layout.putConstraint(
-                SpringLayout.WEST, imageLabel, padding,
-                SpringLayout.WEST, container
-        );
-        layout.putConstraint(
-                SpringLayout.NORTH, imageLabel, padding,
-                SpringLayout.SOUTH, sentenceArea
-        );
-        container.add(imageLabel);
+
 
         nsfwCheck = new JCheckBox("NSFW");
         nsfwCheck.setFont(jpFont);
-        layout.putConstraint(
-                SpringLayout.WEST, nsfwCheck, padding,
-                SpringLayout.EAST, imageLabel
-        );
-        layout.putConstraint(
-                SpringLayout.VERTICAL_CENTER, nsfwCheck, 0,
-                SpringLayout.VERTICAL_CENTER, imageLabel
-        );
-        container.add(nsfwCheck);
+
 
         JButton setCapture = new JButton("Set Capture");
         setCapture.setFont(jpFont);
-        layout.putConstraint(
-                SpringLayout.WEST, setCapture, padding,
-                SpringLayout.EAST, nsfwCheck
-        );
-        layout.putConstraint(
-                SpringLayout.VERTICAL_CENTER, setCapture, 0,
-                SpringLayout.VERTICAL_CENTER, nsfwCheck
-        );
-        container.add(setCapture);
+
 
         imageArea = new JTextArea();
         imageArea.setWrapStyleWord(false);
@@ -297,28 +217,11 @@ public class AddSentenceView {
         imageArea.setRows(1);
         imageArea.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         imageArea.setFont(jpFont);
-        layout.putConstraint(
-                SpringLayout.HORIZONTAL_CENTER, imageArea, 0,
-                SpringLayout.HORIZONTAL_CENTER, container
-        );
-        layout.putConstraint(
-                SpringLayout.NORTH, imageArea, padding,
-                SpringLayout.SOUTH, imageLabel
-        );
-        container.add(imageArea);
 
         //Add button
         JButton addButton = new JButton("Add");
         addButton.setFont(jpFont);
-        layout.putConstraint(
-                SpringLayout.WEST, addButton, padding,
-                SpringLayout.WEST, container
-        );
-        layout.putConstraint(
-                SpringLayout.NORTH, addButton, padding,
-                SpringLayout.SOUTH, imageArea
-        );
-        container.add(addButton);
+
         //Check to make sure the sentenceArea has some content, Sentence field on SentenceTable must be NON-NULL
         final boolean[] goodAdd = {true};
         addButton.addActionListener(new ActionListener() {
@@ -541,6 +444,190 @@ public class AddSentenceView {
         });
         return new AddSentenceControl(this, mainWindow.getDatabase());
     }
+
+    public JPanel createSourceTypePanel() {
+        JPanel returnPanel = new JPanel();
+        SpringLayout panelLayout = new SpringLayout();
+        returnPanel.setLayout(panelLayout);
+
+        panelLayout.putConstraint(
+                SpringLayout.WEST, sourceTypeLabel, padding,
+                SpringLayout.WEST, returnPanel
+        );
+        panelLayout.putConstraint(
+                SpringLayout.NORTH, sourceTypeLabel, padding,
+                SpringLayout.NORTH, returnPanel
+        );
+        returnPanel.add(sourceTypeLabel);
+
+        sourceTypeCombo.setSelectedIndex(0);
+        //Prevents the sourceTypeCombo from stretching vertically when window is resized
+        sourceTypeCombo.setMaximumSize(new Dimension());
+        panelLayout.putConstraint(
+                SpringLayout.VERTICAL_CENTER, sourceTypeCombo, 0,
+                SpringLayout.VERTICAL_CENTER, sourceTypeLabel
+        );
+        panelLayout.putConstraint(
+                SpringLayout.WEST, sourceTypeCombo, padding,
+                SpringLayout.EAST, sourceTypeLabel
+        );
+        returnPanel.add(sourceTypeCombo);
+
+        panelLayout.putConstraint(
+                SpringLayout.VERTICAL_CENTER, sequentialCheck, 0,
+                SpringLayout.VERTICAL_CENTER, sourceTypeCombo
+        );
+        panelLayout.putConstraint(
+                SpringLayout.WEST, sequentialCheck, padding,
+                SpringLayout.EAST, sourceTypeCombo
+        );
+        returnPanel.add(sequentialCheck);
+
+
+        //Constraints for EAST and SOUTH of returnPanel
+        panelLayout.putConstraint(
+                SpringLayout.EAST, returnPanel, padding,
+                SpringLayout.EAST, sequentialCheck
+        );
+        panelLayout.putConstraint(
+                SpringLayout.SOUTH, returnPanel, 0,
+                SpringLayout.SOUTH, sourceTypeCombo
+        );
+
+        return returnPanel;
+    }
+
+    public JPanel createBacklinkPanel() {
+        JPanel returnPanel = new JPanel();
+        SpringLayout panelLayout = new SpringLayout();
+        returnPanel.setLayout(panelLayout);
+
+        panelLayout.putConstraint(
+                SpringLayout.WEST, linkStatusLabel, padding,
+                SpringLayout.WEST, returnPanel
+        );
+        panelLayout.putConstraint(
+                SpringLayout.NORTH, linkStatusLabel, padding,
+                SpringLayout.NORTH, returnPanel
+        );
+        returnPanel.add(linkStatusLabel);
+
+        panelLayout.putConstraint(
+                SpringLayout.WEST, currentLinkStatusLabel, padding,
+                SpringLayout.EAST, linkStatusLabel
+        );
+        panelLayout.putConstraint(
+                SpringLayout.NORTH, currentLinkStatusLabel, padding,
+                SpringLayout.NORTH, returnPanel
+        );
+        returnPanel.add(currentLinkStatusLabel);
+
+        panelLayout.putConstraint(
+                SpringLayout.WEST, setLinkButton, padding,
+                SpringLayout.WEST, returnPanel
+        );
+        panelLayout.putConstraint(
+                SpringLayout.NORTH, setLinkButton, padding,
+                SpringLayout.SOUTH, linkStatusLabel
+        );
+        returnPanel.add(setLinkButton);
+        setLinkButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                setLinkView = new SetLinkView(mainWindow, sentenceControl);
+            }
+        });
+
+        panelLayout.putConstraint(
+                SpringLayout.WEST, viewLinkButton, padding,
+                SpringLayout.EAST, setLinkButton
+        );
+        panelLayout.putConstraint(
+                SpringLayout.NORTH, viewLinkButton, padding,
+                SpringLayout.SOUTH, linkStatusLabel
+        );
+        returnPanel.add(viewLinkButton);
+        //TODO: Create function for viewing the currently set backlink
+
+        panelLayout.putConstraint(
+                SpringLayout.WEST, setHeadButton, padding,
+                SpringLayout.EAST, viewLinkButton
+        );
+        panelLayout.putConstraint(
+                SpringLayout.NORTH, setHeadButton, padding,
+                SpringLayout.SOUTH, linkStatusLabel
+        );
+        returnPanel.add(setHeadButton);
+        setHeadButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                setHeadClicked(currentLinkStatusLabel);
+            }
+        });
+
+        //Constraints for EAST and SOUTH of returnPanel
+        panelLayout.putConstraint(
+                SpringLayout.EAST, returnPanel, padding,
+                SpringLayout.EAST, setHeadButton
+        );
+        panelLayout.putConstraint(
+                SpringLayout.SOUTH, returnPanel, 0,
+                SpringLayout.SOUTH, setLinkButton
+        );
+
+        return returnPanel;
+    }
+
+    public JPanel createSourceNamePanel() {
+        JPanel returnPanel = new JPanel();
+        SpringLayout panelLayout = new SpringLayout();
+        returnPanel.setLayout(panelLayout);
+
+        panelLayout.putConstraint(
+                SpringLayout.WEST, sourceNameLabel, padding,
+                SpringLayout.WEST, returnPanel
+        );
+        panelLayout.putConstraint(
+                SpringLayout.NORTH, sourceNameLabel, padding,
+                SpringLayout.NORTH, returnPanel
+        );
+        returnPanel.add(sourceNameLabel);
+
+        panelLayout.putConstraint(
+                SpringLayout.WEST, hasUrlCheck, padding,
+                SpringLayout.EAST, sourceNameLabel
+        );
+        panelLayout.putConstraint(
+                SpringLayout.VERTICAL_CENTER, hasUrlCheck, 0,
+                SpringLayout.VERTICAL_CENTER, sourceNameLabel
+        );
+        returnPanel.add(hasUrlCheck);
+
+        sourceNameArea.setWrapStyleWord(false);
+        sourceNameArea.setLineWrap(true);
+        sourceNameArea.setColumns(fieldColumns);
+        sourceNameArea.setRows(1);
+        sourceNameArea.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+
+        //Constraints for EAST and SOUTH of returnPanel
+        panelLayout.putConstraint(
+                SpringLayout.EAST, returnPanel, padding,
+                SpringLayout.EAST, hasUrlCheck
+        );
+        panelLayout.putConstraint(
+                SpringLayout.SOUTH, returnPanel, padding,
+                SpringLayout.SOUTH, sourceNameLabel
+        );
+
+        return returnPanel;
+    }
+
+    public void createUrlPanel() {}
+
+    public void createSentencePanel() {}
+
+    public void createImagePanel() {}
+
 
     private void setHeadClicked(JLabel currentBackLink) {
         currentBackLink.setText("Head");

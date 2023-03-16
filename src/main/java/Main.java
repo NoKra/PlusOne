@@ -13,8 +13,8 @@ public class Main {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                WindowObject mainWindow = new WindowObject(database, WindowObject.WindowSize.BrowseView);
-                mainWindow.getNav().toBrowse();
+                WindowObject mainWindow = new WindowObject(database, true);
+                mainWindow.getNav().toAddSentence();
             }
         });
     }

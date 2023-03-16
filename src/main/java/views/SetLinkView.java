@@ -29,17 +29,13 @@ public class SetLinkView {
         }
     };
     private JTable sentenceTable;
-    private final int tableWidth;
-    private final int tableHeight;
     private final SetLinkController linkController;
 
     public SetLinkView(WindowObject mainWindow, AddSentenceControl addSentenceControl) {
         this.addSentenceControl = addSentenceControl;
-        setWindow = new WindowObject(mainWindow.getDatabase(), WindowObject.WindowSize.SetLinkView);
-        container = setWindow.getContentContainer();
+        setWindow = new WindowObject(mainWindow.getDatabase(), false);
+        container = setWindow.getContainer();
         layout = setWindow.getLayout();
-        tableWidth = setWindow.getWindowWidth() - (padding * 2);
-        tableHeight = setWindow.getWindowHeight() / 3;
 
         setWindow.setWindowVisible();
         linkController = new SetLinkController(mainWindow.getDatabase(), this);
@@ -106,7 +102,6 @@ public class SetLinkView {
         });
 
         JScrollPane tableScroll = new JScrollPane(sentenceTable);
-        tableScroll.setPreferredSize(new Dimension(tableWidth, tableHeight));
         layout.putConstraint(
                 SpringLayout.HORIZONTAL_CENTER, tableScroll, 0,
                 SpringLayout.HORIZONTAL_CENTER, container
@@ -317,7 +312,7 @@ public class SetLinkView {
         linkController.setComponents(sentenceTable, idValueLabel, typeValueLabel, nameValueLabel,
                 urlValueLabel, sentenceValueArea, selectBacklinkButton, linkValueLabel);
         linkController.initializeTable();
-        sizeTable();
+        //sizeTable();
     }
 
     private static class NoBorderRenderer extends DefaultTableCellRenderer {
@@ -330,6 +325,7 @@ public class SetLinkView {
         }
     }
 
+    /*
     private void sizeTable() {
         int columns = sentenceTable.getColumnCount();
         System.out.println(tableWidth);
@@ -345,4 +341,5 @@ public class SetLinkView {
         sentenceTable.getColumnModel().getColumn(5).setPreferredWidth(tableWidth / 20);
 
     }
+     */
 }

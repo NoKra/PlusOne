@@ -18,11 +18,11 @@ public class MainView {
 
     public MainView(WindowObject mainWindow) {
         this.mainWindow = mainWindow;
-        this.container = this.mainWindow.getContentContainer();
+        this.container = this.mainWindow.getContainer();
         this.layout = this.mainWindow.getLayout();
 
         createView();
-        listenClipForLabel();
+        //listenClipForLabel();
     }
 
     //TODO: move this over to AddSentenceView
@@ -47,6 +47,7 @@ public class MainView {
     }
 
     private void createView() {
+        JPanel navPanel = mainWindow.createNavPanel();
         JLabel welcome = new JLabel("Plus(+) One(1)");
         layout.putConstraint(
                 SpringLayout.HORIZONTAL_CENTER, welcome, 0,

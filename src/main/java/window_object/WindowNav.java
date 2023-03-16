@@ -2,7 +2,10 @@ package window_object;
 
 import views.AddSentenceView;
 import views.BrowseView;
+import views.MainView;
 import views.SetLinkView;
+
+import javax.swing.*;
 
 public class WindowNav {
 
@@ -10,6 +13,12 @@ public class WindowNav {
 
     public WindowNav(WindowObject mainWindow) {
         this.mainWindow = mainWindow;
+    }
+
+    public void toMain() {
+        mainWindow.clearWindow();
+        new MainView(mainWindow);
+        mainWindow.showNewContent();
     }
 
     public void toAddSentence() {

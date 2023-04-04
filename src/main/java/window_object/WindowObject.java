@@ -4,8 +4,9 @@ import database.Database;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.sql.SQLException;
 
 public class WindowObject {
@@ -15,6 +16,7 @@ public class WindowObject {
     private final SpringLayout layout = new SpringLayout();
     private final JMenuBar menuBar = new JMenuBar();
     private final WindowNav nav;
+    private JScrollPane contentScroll = null;
     private final int padding = 20;
 
     public WindowObject(Database database, boolean isMain) {
@@ -28,7 +30,6 @@ public class WindowObject {
         //Window Object must be instantiated before nav object, as nav object requires WindowObject as parameter
         nav = new WindowNav(this);
         createMenuBar();
-        centerWindow();
         setWindowVisible();
     }
     public JFrame getMainFrame() {
@@ -53,6 +54,10 @@ public class WindowObject {
 
     public WindowNav getNav() {
         return nav;
+    }
+
+    public JScrollPane getContentScroll() {
+        return contentScroll;
     }
 
     private void createMenuBar() {
@@ -192,17 +197,26 @@ public class WindowObject {
         contentPanel.setLayout(new SpringLayout());
         container.add(contentPanel);
 
+        contentScroll = new JScrollPane(contentPanel);
+        contentScroll.setBorder(BorderFactory.createEmptyBorder());
+        contentScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        container.add(contentScroll);
+
         layout.putConstraint(
-                SpringLayout.HORIZONTAL_CENTER, contentPanel, 0,
-                SpringLayout.HORIZONTAL_CENTER, container
+                SpringLayout.WEST, contentScroll, 0,
+                SpringLayout.WEST, container
         );
         layout.putConstraint(
-                SpringLayout.NORTH, contentPanel, 0,
+                SpringLayout.EAST, container, 0,
+                SpringLayout.EAST, contentScroll
+        );
+        layout.putConstraint(
+                SpringLayout.NORTH, contentScroll, 0,
                 SpringLayout.NORTH, container
         );
         layout.putConstraint(
                 SpringLayout.SOUTH, container, 0,
-                SpringLayout.SOUTH, contentPanel
+                SpringLayout.SOUTH, contentScroll
         );
         return contentPanel;
     }
@@ -213,18 +227,28 @@ public class WindowObject {
         contentPanel.setLayout(new SpringLayout());
         container.add(contentPanel);
 
+        contentScroll = new JScrollPane(contentPanel);
+        contentScroll.setBorder(BorderFactory.createEmptyBorder());
+        contentScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        container.add(contentScroll);
+
         layout.putConstraint(
-                SpringLayout.HORIZONTAL_CENTER, contentPanel, 0,
-                SpringLayout.HORIZONTAL_CENTER, container
+                SpringLayout.WEST, contentScroll, 0,
+                SpringLayout.WEST, container
         );
         layout.putConstraint(
-                SpringLayout.NORTH, contentPanel, 0,
+                SpringLayout.EAST, container, 0,
+                SpringLayout.EAST, contentScroll
+        );
+        layout.putConstraint(
+                SpringLayout.NORTH, contentScroll, 0,
                 SpringLayout.SOUTH, navPanel
         );
         layout.putConstraint(
                 SpringLayout.SOUTH, container, 0,
-                SpringLayout.SOUTH, contentPanel
+                SpringLayout.SOUTH, contentScroll
         );
+
         return contentPanel;
     }
 
@@ -297,9 +321,6 @@ public class WindowObject {
         container.repaint();
     }
 
-    public void centerWindow() {
-        mainFrame.setLocationRelativeTo(null);
-    }
 
     public void setWindowVisible() {
         mainFrame.setVisible(true);

@@ -25,20 +25,16 @@ public class SetLinkController {
     public SetLinkController(Database database, SetLinkView linkView) {
         this.database = database;
         this.tableModel = linkView.getLinkTableModel();
+        this.sentenceTable = linkView.getSentenceTable();
+        this.idLabel = linkView.getIdValueLabel();
+        this.typeLabel = linkView.getTypeValueLabel();
+        this.nameLabel = linkView.getNameValueLabel();
+        this.urlLabel = linkView.getUrlValueLabel();
+        this.sentenceArea = linkView.getSentenceValueArea();
+        this.linkButton = linkView.getSelectBacklinkButton();
+        this.linkLabel = linkView.getLinkValueLabel();
 
-    }
-
-    //Fetches required components from SetLinkView,
-    public void setComponents(JTable sentenceTable, JLabel idLabel, JLabel typeLabel, JLabel nameLabel,
-                              JLabel urlLabel, JTextArea sentenceArea, JButton linkButton, JLabel linkLabel) {
-        this.sentenceTable = sentenceTable;
-        this.idLabel = idLabel;
-        this.typeLabel = typeLabel;
-        this.nameLabel = nameLabel;
-        this.urlLabel = urlLabel;
-        this.sentenceArea = sentenceArea;
-        this.linkButton = linkButton;
-        this.linkLabel = linkLabel;
+        initializeTable();
     }
 
     //TODO: Remove sentence ID on release, no need for it to be there
@@ -94,6 +90,9 @@ public class SetLinkController {
         }
         if(tableModel.getRowCount() > 0) {
             sentenceTable.setRowSelectionInterval(0, 0);
+        }
+        else {
+            placeHoldLabels();
         }
     }
 
@@ -165,6 +164,17 @@ public class SetLinkController {
     public void clearLabels() {
         //TODO: Consider a better default empty value
         String defaultEmpty = "";
+        idLabel.setText(defaultEmpty);
+        typeLabel.setText(defaultEmpty);
+        nameLabel.setText(defaultEmpty);
+        urlLabel.setText(defaultEmpty);
+        sentenceArea.setText(defaultEmpty);
+        linkLabel.setText(defaultEmpty);
+    }
+
+    //When there is an empty search result and no selection, adds some white space so the label spacing doesn't collapse
+    public void placeHoldLabels() {
+        String defaultEmpty = "  ";
         idLabel.setText(defaultEmpty);
         typeLabel.setText(defaultEmpty);
         nameLabel.setText(defaultEmpty);

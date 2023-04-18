@@ -200,6 +200,7 @@ public class WindowObject {
         contentScroll = new JScrollPane(contentPanel);
         contentScroll.setBorder(BorderFactory.createEmptyBorder());
         contentScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        contentScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         container.add(contentScroll);
 
         layout.putConstraint(

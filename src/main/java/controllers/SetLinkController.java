@@ -19,7 +19,7 @@ public class SetLinkController {
     private JLabel urlLabel;
     private JTextArea sentenceArea;
     private JButton linkButton;
-    private JLabel linkLabel;
+    private JTextArea linkArea;
     private int maxSentences = 0;
 
     public SetLinkController(Database database, SetLinkView linkView) {
@@ -32,7 +32,7 @@ public class SetLinkController {
         this.urlLabel = linkView.getUrlValueLabel();
         this.sentenceArea = linkView.getSentenceValueArea();
         this.linkButton = linkView.getSelectBacklinkButton();
-        this.linkLabel = linkView.getLinkValueLabel();
+        this.linkArea = linkView.getLinkValueArea();
 
         initializeTable();
     }
@@ -79,7 +79,8 @@ public class SetLinkController {
         }
         List<SentenceObject> foundSentences;
         try {
-            foundSentences = database.fetchMatchingSentences(searchQuery);
+            foundSentences = database.fetchBySentence(searchQuery);
+            foundSentences.addAll(database.fetchBySourceName(searchQuery));
         } catch (SQLException e) {
             e.printStackTrace();
             return;
@@ -130,14 +131,22 @@ public class SetLinkController {
         }
         sentenceArea.setText(tableModel.getValueAt(selectedRow, 4).toString());
         String linkValue = tableModel.getValueAt(selectedRow, 5).toString();
-        if(!linkValue.equals("-1")) {
-            linkLabel.setText(linkValue);
+        if(Integer.parseInt(linkValue) >= 0) {
+            try {
+                SentenceObject linkedSentence = database.fetchSentenceByKey(Integer.parseInt(linkValue));
+                linkArea.setText(linkedSentence.getSentence());
+            } catch (SQLException e) {
+                e.printStackTrace();
+                linkArea.setText(linkValue);
+            }
             linkButton.setEnabled(true);
         }
         else {
-            linkLabel.setText("None");
+            linkArea.setText("None");
             linkButton.setEnabled(false);
         }
+
+
     }
 
     //Moves the selection on the table to the backlink of the currently selected sentence
@@ -161,15 +170,15 @@ public class SetLinkController {
         sentenceTable.setRowSelectionInterval(0, sentenceTable.getRowCount() - 1);
     }
 
+    //Clears SetLink selectedInfoPanel components
     public void clearLabels() {
-        //TODO: Consider a better default empty value
-        String defaultEmpty = "";
+        String defaultEmpty = " ";
         idLabel.setText(defaultEmpty);
         typeLabel.setText(defaultEmpty);
         nameLabel.setText(defaultEmpty);
         urlLabel.setText(defaultEmpty);
         sentenceArea.setText(defaultEmpty);
-        linkLabel.setText(defaultEmpty);
+        linkArea.setText(defaultEmpty);
     }
 
     //When there is an empty search result and no selection, adds some white space so the label spacing doesn't collapse
@@ -180,11 +189,8 @@ public class SetLinkController {
         nameLabel.setText(defaultEmpty);
         urlLabel.setText(defaultEmpty);
         sentenceArea.setText(defaultEmpty);
-        linkLabel.setText(defaultEmpty);
+        linkArea.setText(defaultEmpty);
     }
 
-    public void selectLink() {
-
-    }
 }
 

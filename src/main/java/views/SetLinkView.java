@@ -9,6 +9,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
 import java.awt.*;
 import java.awt.event.*;
 
@@ -16,8 +17,10 @@ public class SetLinkView {
     private final AddSentenceControl addSentenceControl;
     private final WindowObject setWindow;
     private final Font jpFont = new Font("Meiryo", Font.BOLD, 16);
+    private final Font uiFont = new Font("Meiryo UI", Font.BOLD, 14);
+    private final Font buttonFont = new Font("Verdana", Font.BOLD, 16);
     private final int padding = 20;
-    //Disables editing for all cells
+    private final int areaColumns = 45;
 
     DefaultTableModel linkTableModel = new DefaultTableModel(){
         public boolean isCellEditable(int row, int column) {
@@ -37,18 +40,18 @@ public class SetLinkView {
     private JScrollPane tableScroll = new JScrollPane(sentenceTable);
     private JPanel selectedInfoPanel;
     private JLabel idPretextLabel = new JLabel("Selected ID: ");
-    private JLabel idValueLabel = new JLabel("null id");
+    private JLabel idValueLabel = new JLabel("  ");
     private JLabel typePretextLabel = new JLabel("Source Type: ");
-    private JLabel typeValueLabel = new JLabel("null type");
+    private JLabel typeValueLabel = new JLabel("  ");
     private JLabel namePretextLabel = new JLabel("Source Name: ");
-    private JLabel nameValueLabel = new JLabel("null name");
+    private JLabel nameValueLabel = new JLabel("  ");
     private JLabel urlPretextLabel = new JLabel("Source URL: ");
-    private JLabel urlValueLabel = new JLabel("null URL");
+    private JLabel urlValueLabel = new JLabel("  ");
     private JLabel sentencePretextLabel = new JLabel("Sentence: ");
-    private JTextArea sentenceValueArea = new JTextArea("null sentence");
+    private JTextArea sentenceValueArea = new JTextArea("  ");
     private JLabel linkPretextLabel = new JLabel("Backlink: ");
     private JButton selectBacklinkButton = new JButton("Go to Link");
-    private JLabel linkValueLabel = new JLabel("null link");
+    private JTextArea linkValueArea = new JTextArea("  ");
     private JButton selectLinkButton = new JButton("Select");
 
     public SetLinkView(WindowObject mainWindow, AddSentenceControl addSentenceControl) {
@@ -58,6 +61,8 @@ public class SetLinkView {
         setWindow.setWindowVisible();
         setWindow.getMainFrame().setLocationRelativeTo(null);
         linkController = new SetLinkController(mainWindow.getDatabase(), this);
+        sentenceTable.setRowSelectionInterval(0, 0);
+        sizeTable();
     }
 
     public DefaultTableModel getLinkTableModel() {
@@ -70,7 +75,7 @@ public class SetLinkView {
     public JLabel getUrlValueLabel() {return urlValueLabel;}
     public JTextArea getSentenceValueArea() {return sentenceValueArea;}
     public JButton getSelectBacklinkButton() {return selectBacklinkButton;}
-    public JLabel getLinkValueLabel() {return linkValueLabel;}
+    public JTextArea getLinkValueArea() {return linkValueArea;}
 
 
 
@@ -88,7 +93,6 @@ public class SetLinkView {
                 SpringLayout.NORTH, contentPanel
         );
         contentPanel.add(topPanel);
-        topPanel.setBackground(Color.BLUE);
 
         searchPanel = createSearchPanel();
         contentPanelLayout.putConstraint(
@@ -135,7 +139,6 @@ public class SetLinkView {
                 SpringLayout.SOUTH, selectedInfoPanel
         );
         contentPanel.add(bottomPanel);
-        bottomPanel.setBackground(Color.BLUE);
 
         contentPanelLayout.putConstraint(
                 SpringLayout.SOUTH, contentPanel, 0,
@@ -143,7 +146,11 @@ public class SetLinkView {
         );
 
         setWindow.packFrame();
-        tableScroll.setPreferredSize(new Dimension((int)(searchPanel.getWidth() * 1.5), selectedInfoPanel.getHeight()));
+        Dimension tableScrollDim = new Dimension(
+                (int)(searchPanel.getWidth() * 1.5),
+                selectedInfoPanel.getHeight());
+        tableScroll.setMinimumSize(tableScrollDim);
+        tableScroll.setPreferredSize(tableScrollDim);
         setWindow.getMainFrame().setMinimumSize(new Dimension(
                 (int)(tableScroll.getPreferredSize().getWidth() * 1.5),
                 (int)(contentPanel.getHeight() * 1.1)
@@ -158,10 +165,25 @@ public class SetLinkView {
         });
     }
 
+    //TODO: create option for search queries based on field, i.e. "name: xxxx"
     private JPanel createSearchPanel() {
         JPanel returnPanel = new JPanel();
         SpringLayout panelLayout = new SpringLayout();
         returnPanel.setLayout(panelLayout);
+
+        searchLabel.setFont(uiFont);
+        searchField.setFont(jpFont);
+
+        searchField.setColumns(30);
+        searchField.setMaximumSize(new Dimension());
+        searchField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if(e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    linkController.sentenceSearch(searchField.getText());
+                }
+            }
+        });
 
         panelLayout.putConstraint(
                 SpringLayout.WEST, searchLabel, padding,
@@ -183,18 +205,6 @@ public class SetLinkView {
         );
         returnPanel.add(searchField);
 
-        searchField.setColumns(30);
-        searchField.setMaximumSize(new Dimension());
-        searchField.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyPressed(KeyEvent e) {
-                if(e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    linkController.sentenceSearch(searchField.getText());
-                    setWindow.packFrame();
-                }
-            }
-        });
-
         //Constraints for EAST and SOUTH of returnPanel
         panelLayout.putConstraint(
                 SpringLayout.EAST, returnPanel, padding,
@@ -213,21 +223,42 @@ public class SetLinkView {
         SpringLayout panelLayout = new SpringLayout();
         returnPanel.setLayout(panelLayout);
 
+        sentenceTable.setFont(jpFont);
+
 
         ListSelectionModel selectionModel = sentenceTable.getSelectionModel();
         selectionModel.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         sentenceTable.getTableHeader().setReorderingAllowed(false);
-        sentenceTable.setCellSelectionEnabled(false);
-        sentenceTable.setRowSelectionAllowed(false);
         sentenceTable.setDefaultRenderer(Object.class, new NoBorderRenderer());
         selectionModel.addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
                 if(!e.getValueIsAdjusting()) {
                     linkController.selectionChanged();
+
+                    //Probably not the best way, but these double invoke later are needed when sentences
+                    //are larger than the current window size, otherwise window goes blank until resized
+                    EventQueue.invokeLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            sentenceValueArea.repaint();
+                            sentenceValueArea.revalidate();
+
+                            EventQueue.invokeLater(new Runnable() {
+                                @Override
+                                public void run() {
+                                    contentPanel.repaint();
+                                    contentPanel.revalidate();
+                                }
+                            });
+                        }
+                    });
                 }
             }
         });
+
+        tableScroll.setMaximumSize(new Dimension());
+        tableScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 
         panelLayout.putConstraint(
                 SpringLayout.NORTH, tableScroll, padding,
@@ -239,8 +270,6 @@ public class SetLinkView {
                 SpringLayout.WEST, returnPanel
         );
         returnPanel.add(tableScroll);
-        tableScroll.setMaximumSize(new Dimension());
-        tableScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 
         panelLayout.putConstraint(
                 SpringLayout.SOUTH, returnPanel, 0,
@@ -252,15 +281,66 @@ public class SetLinkView {
                 SpringLayout.EAST, tableScroll
         );
 
-
         return returnPanel;
     }
 
     private JPanel createSelectedInfoPanel() {
-        //TODO: may need to separate this into individual panels because of horizontal size
         JPanel returnPanel = new JPanel();
         SpringLayout panelLayout = new SpringLayout();
         returnPanel.setLayout(panelLayout);
+
+        idPretextLabel.setFont(uiFont);
+        idValueLabel.setFont(uiFont);
+        typePretextLabel.setFont(uiFont);
+        typeValueLabel.setFont(uiFont);
+        namePretextLabel.setFont(uiFont);
+        nameValueLabel.setFont(jpFont);
+        urlPretextLabel.setFont(uiFont);
+        urlValueLabel.setFont(uiFont);
+        sentencePretextLabel.setFont(uiFont);
+        sentenceValueArea.setFont(jpFont);
+        linkPretextLabel.setFont(uiFont);
+        selectBacklinkButton.setFont(buttonFont);
+        linkValueArea.setFont(jpFont);
+        selectLinkButton.setFont(buttonFont);
+
+        sentenceValueArea.setEditable(false);
+        sentenceValueArea.setBackground(null);
+        sentenceValueArea.setWrapStyleWord(true);
+        sentenceValueArea.setLineWrap(true);
+        sentenceValueArea.setMaximumSize(new Dimension());
+        sentenceValueArea.setColumns(areaColumns);
+        sentenceValueArea.setRows(1);
+
+        selectBacklinkButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                linkController.selectSelectedBacklink();
+            }
+        });
+
+        linkValueArea.setEditable(false);
+        linkValueArea.setBackground(null);
+        linkValueArea.setWrapStyleWord(true);
+        linkValueArea.setLineWrap(true);
+        linkValueArea.setMaximumSize(new Dimension());
+        linkValueArea.setColumns(areaColumns);
+        linkValueArea.setRows(1);
+
+
+        selectLinkButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                addSentenceControl.setBackLink(
+                        typeValueLabel.getText(),
+                        nameValueLabel.getText(),
+                        urlValueLabel.getText(),
+                        sentenceValueArea.getText(),
+                        Integer.parseInt(idValueLabel.getText()));
+                setWindow.destroyWindow();
+            }
+        });
+        selectBacklinkButton.setEnabled(false);
 
         panelLayout.putConstraint(
                 SpringLayout.NORTH, idPretextLabel, padding,
@@ -317,8 +397,8 @@ public class SetLinkView {
                 SpringLayout.EAST, namePretextLabel
         );
         panelLayout.putConstraint(
-                SpringLayout.NORTH, nameValueLabel, padding,
-                SpringLayout.SOUTH, typeValueLabel
+                SpringLayout.VERTICAL_CENTER, nameValueLabel, 0,
+                SpringLayout.VERTICAL_CENTER, namePretextLabel
         );
         returnPanel.add(nameValueLabel);
 
@@ -337,8 +417,8 @@ public class SetLinkView {
                 SpringLayout.EAST, urlPretextLabel
         );
         panelLayout.putConstraint(
-                SpringLayout.NORTH, urlValueLabel, padding,
-                SpringLayout.SOUTH, nameValueLabel
+                SpringLayout.VERTICAL_CENTER, urlValueLabel, 0,
+                SpringLayout.VERTICAL_CENTER, urlPretextLabel
         );
         returnPanel.add(urlValueLabel);
 
@@ -351,14 +431,6 @@ public class SetLinkView {
                 SpringLayout.SOUTH, urlPretextLabel
         );
         returnPanel.add(sentencePretextLabel);
-
-        sentenceValueArea.setEditable(false);
-        sentenceValueArea.setBackground(null);
-        sentenceValueArea.setWrapStyleWord(true);
-        sentenceValueArea.setLineWrap(true);
-        sentenceValueArea.setMaximumSize(new Dimension());
-        sentenceValueArea.setColumns(45);
-        sentenceValueArea.setRows(1);
 
         panelLayout.putConstraint(
                 SpringLayout.WEST, sentenceValueArea, padding,
@@ -391,14 +463,14 @@ public class SetLinkView {
         returnPanel.add(selectBacklinkButton);
 
         panelLayout.putConstraint(
-                SpringLayout.WEST, linkValueLabel, padding,
+                SpringLayout.WEST, linkValueArea, padding,
                 SpringLayout.WEST, returnPanel
         );
         panelLayout.putConstraint(
-                SpringLayout.NORTH, linkValueLabel, padding,
+                SpringLayout.NORTH, linkValueArea, padding,
                 SpringLayout.SOUTH, selectBacklinkButton
         );
-        returnPanel.add(linkValueLabel);
+        returnPanel.add(linkValueArea);
 
         panelLayout.putConstraint(
                 SpringLayout.WEST, selectLinkButton, padding,
@@ -406,18 +478,9 @@ public class SetLinkView {
         );
         panelLayout.putConstraint(
                 SpringLayout.NORTH, selectLinkButton, padding,
-                SpringLayout.SOUTH, linkValueLabel
+                SpringLayout.SOUTH, linkValueArea
         );
         returnPanel.add(selectLinkButton);
-
-        selectLinkButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                addSentenceControl.setBacklinkId(Integer.parseInt(idValueLabel.getText()), sentenceValueArea.getText());
-                setWindow.destroyWindow();
-            }
-        });
-        selectBacklinkButton.setEnabled(false);
 
         //Constraints for EAST and SOUTH of returnPanel
         panelLayout.putConstraint(
@@ -433,7 +496,7 @@ public class SetLinkView {
     }
 
 
-    private static class NoBorderRenderer extends DefaultTableCellRenderer {
+    private static class NoBorderRenderer extends DefaultTableCellRenderer implements TableCellRenderer {
         @Override
         public Component getTableCellRendererComponent(
                 JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
@@ -443,21 +506,17 @@ public class SetLinkView {
         }
     }
 
-    /*
     private void sizeTable() {
-        int columns = sentenceTable.getColumnCount();
-        System.out.println(tableWidth);
-        for(int i = 0; i < columns; i++) {
+        int tableWidth = sentenceTable.getWidth();
+        for(int i = 0; i < sentenceTable.getColumnCount(); i++) {
             sentenceTable.getColumnModel().getColumn(i).setMaxWidth(tableWidth);
             sentenceTable.getColumnModel().getColumn(i).setMinWidth(tableWidth / 100);
         }
-        sentenceTable.getColumnModel().getColumn(0).setPreferredWidth(tableWidth / 20);
+        sentenceTable.getColumnModel().getColumn(0).setPreferredWidth(tableWidth / 15);
         sentenceTable.getColumnModel().getColumn(1).setPreferredWidth(tableWidth / 10);
-        sentenceTable.getColumnModel().getColumn(2).setPreferredWidth(tableWidth / 5);
+        sentenceTable.getColumnModel().getColumn(2).setPreferredWidth(tableWidth / 2);
         sentenceTable.getColumnModel().getColumn(3).setPreferredWidth(tableWidth / 10);
         sentenceTable.getColumnModel().getColumn(4).setPreferredWidth(tableWidth);
-        sentenceTable.getColumnModel().getColumn(5).setPreferredWidth(tableWidth / 20);
-
+        sentenceTable.getColumnModel().getColumn(5).setPreferredWidth(tableWidth / 15);
     }
-     */
 }

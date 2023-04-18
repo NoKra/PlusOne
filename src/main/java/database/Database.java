@@ -1,13 +1,10 @@
 package database;
 import content_objects.SentenceObject;
-import org.h2.store.fs.FileUtils;
 
-import javax.lang.model.type.NullType;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.sql.*;
 import java.util.*;
-import java.util.function.Function;
 
 public class Database {
     //TODO: Create a way to select db save location
@@ -261,6 +258,40 @@ public class Database {
         dbConnection.createStatement().execute(sql);
     }
 
+    public void updateSentence(SentenceObject sentence) throws SQLException {
+        int sqlKey = sentence.getSentenceKey();
+        String sqlType = "'" + sentence.getSourceType() + "'";
+        String sqlName;
+        if(sentence.getSourceName() != null) {
+            sqlName = "'" + sentence.getSourceName() + "'";
+        } else  {
+            sqlName = "NULL";
+        }
+        String sqlUrl = "'" + sentence.getSourceUrl() + "'";
+        String sqlSentence = "'" + sentence.getSentence() + "'";
+        String sqlImagePath;
+        if(sentence.getImagePath() != null) {
+            sqlImagePath = "'" + sentence.getImagePath() + "'";
+        } else {
+            sqlImagePath = "NULL";
+        }
+        String sqlNsfw = sentence.getNsfwTag() ? "TRUE" : "FALSE";
+        int sqlBacklink = sentence.getBacklink();
+
+        String sql = String.format("UPDATE SENTENCES SET " +
+                        "SOURCE_TYPE = %s, " +
+                        "SOURCE_NAME = %s, " +
+                        "SOURCE_URL = %s, " +
+                        "SENTENCE = %s, " +
+                        "IMAGE_PATH = %s, " +
+                        "NSFW = %s, " +
+                        "BACK_LINK = %s "+
+                        "WHERE SENTENCE_KEY = %s;",
+                sqlType, sqlName, sqlUrl, sqlSentence, sqlImagePath, sqlNsfw, sqlBacklink, sqlKey);
+        System.out.println(sql);
+        dbConnection.createStatement().execute(sql);
+    }
+
     public SentenceObject[] fetchAllSentences() throws SQLException {
         SentenceObject[] loadedSentences = new SentenceObject[maxSentenceIndex];
         String sql = "SELECT * FROM SENTENCES";
@@ -274,23 +305,31 @@ public class Database {
     }
 
     public SentenceObject fetchSentenceByKey(int sentenceKey) throws SQLException {
-        String sql = String.format("SELECT * FROM SENTENCES WHERE SENTENCE_KEY = %s", sentenceKey);
+        String sql = String.format("SELECT * FROM SENTENCES WHERE SENTENCE_KEY = %s;", sentenceKey);
         ResultSet rs = dbConnection.createStatement().executeQuery(sql);
         rs.next();
         return resultToSentenceObject(rs);
     }
 
-    public List<SentenceObject> fetchMatchingSentences(String searchValue) throws SQLException{
+    public List<SentenceObject> fetchBySentence(String searchValue) throws SQLException{
         List<SentenceObject> foundSentences= new ArrayList<SentenceObject>();
         String sql = String.format("SELECT * FROM SENTENCES WHERE REGEXP_LIKE(SENTENCE, '%s[a-z]*', 'i');", searchValue);
         ResultSet rs = dbConnection.createStatement().executeQuery(sql);
         while(rs.next()) {
             foundSentences.add(resultToSentenceObject(rs));
         }
-        System.out.println("Finished search");
         return foundSentences;
     }
 
+    public List<SentenceObject> fetchBySourceName(String searchValue) throws SQLException {
+        List<SentenceObject> foundSentences= new ArrayList<SentenceObject>();
+        String sql = String.format("SELECT * FROM SENTENCES WHERE REGEXP_LIKE(SOURCE_NAME, '%s[a-z]*', 'i');", searchValue);
+        ResultSet rs = dbConnection.createStatement().executeQuery(sql);
+        while(rs.next()) {
+            foundSentences.add(resultToSentenceObject(rs));
+        }
+        return foundSentences;
+    }
 
     public SentenceObject resultToSentenceObject(ResultSet set) throws SQLException {
         int sentenceKey = set.getInt("SENTENCE_KEY");

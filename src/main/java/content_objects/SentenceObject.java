@@ -2,14 +2,14 @@ package content_objects;
 
 public class SentenceObject {
 
-    private final int sentenceKey;
-    private final String sourceType;
-    private final String sourceName;
-    private final String sourceUrl;
-    private final String sentence;
-    private final String imagePath;
-    private final Boolean nsfwTag;
-    private final int backlink;
+    private  final int sentenceKey;
+    private  String sourceType;
+    private  String sourceName;
+    private  String sourceUrl;
+    private  String sentence;
+    private  String imagePath;
+    private  Boolean nsfwTag;
+    private int backlink;
 
 
     public SentenceObject(int sentenceKey, String sourceType, String sourceName, String sourceUrl, String sentence,
@@ -24,6 +24,7 @@ public class SentenceObject {
         this.backlink = backlink;
     }
 
+    //Shouldn't be able to change the sentenceKey, as it's unique and created by the database, so no setSentenceKey
     public int getSentenceKey() {
         return sentenceKey;
     }
@@ -31,30 +32,34 @@ public class SentenceObject {
     public String getSourceType() {
         return sourceType;
     }
+    public void setSourceType(String sourceType) {this.sourceType = sourceType;}
 
     public String getSourceName() {
         return sourceName;
     }
+    public void setSourceName(String sourceName) {this.sourceName = sourceName;}
 
     public String getSourceUrl() {
         return sourceUrl;
     }
+    public void setSourceUrl(String sourceUrl) {this.sourceUrl = sourceUrl;}
 
     public String getSentence() {
         return sentence;
     }
+    public void setSentence(String sentence) {this.sentence = sentence;}
 
-    public String getImagePath() {
-        return imagePath;
-    }
+    public String getImagePath() {return imagePath;}
+    public void setImagePath(String imagePath) {this.imagePath = imagePath;}
 
     public Boolean getNsfwTag() {
         return nsfwTag;
     }
+    public void setNsfwTag(Boolean nsfwTag) {this.nsfwTag = nsfwTag;}
 
-    public int getBacklink() {
-        return backlink;
-    }
+    public int getBacklink() {return backlink;}
+    public void setBacklink(int backlink) {this.backlink = backlink;}
+
 
     public void consolePrint() {
         System.out.println(String.format(

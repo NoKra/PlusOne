@@ -25,8 +25,9 @@ public class AddSentenceView {
     private final Font jpFont = new Font("Meiryo", Font.BOLD, 16);
     private final Font uiFont = new Font("Meiryo UI", Font.BOLD, 14);
     private final Font buttonFont = new Font("Verdana", Font.BOLD, 16);
-    private final Color hasLinkColor = new Color(126, 214, 92);
-    private final Color noLinkColor = new Color(214, 67, 56);
+    private final Color hasLinkColor = new Color(  156, 204, 101  );
+    private final Color noLinkColor = new Color( 244, 81, 30 );
+    private final Color selectedColor = new Color(   33, 150, 243   );
     private BufferedImage imagePaneBuffered = null;
     private ImageIcon imagePaneIcon = null;
 
@@ -248,8 +249,15 @@ public class AddSentenceView {
                             SpringLayout.NORTH, sourceNamePanel, 0,
                             SpringLayout.SOUTH, backlinkPanel
                     );
-                    addComponentResize(backlinkPanel);
+                    EventQueue.invokeLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            contentPanel.repaint();
+                            contentPanel.revalidate();
+                        }
+                    });
 
+                    mainWindow.getContentScroll().getVerticalScrollBar().setValue(0);
                 }
                 else {
                     contentPanel.remove(backlinkPanel);
@@ -261,7 +269,15 @@ public class AddSentenceView {
                             SpringLayout.NORTH, sourceNamePanel, 0,
                             SpringLayout.SOUTH, sourceTypePanel
                     );
-                    removeComponentResize(backlinkPanel);
+                    EventQueue.invokeLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            contentPanel.repaint();
+                            contentPanel.revalidate();
+                        }
+                    });
+                    mainWindow.getContentScroll().getVerticalScrollBar().repaint();
+                    mainWindow.getContentScroll().getVerticalScrollBar().revalidate();
                 }
             }
         });
@@ -305,6 +321,15 @@ public class AddSentenceView {
                 SpringLayout.SOUTH, returnPanel, 0,
                 SpringLayout.SOUTH, sourceTypeCombo
         );
+        EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                returnPanel.setMinimumSize(new Dimension(returnPanel.getWidth(), returnPanel.getHeight()));
+                returnPanel.setPreferredSize(new Dimension(returnPanel.getWidth(), returnPanel.getHeight()));
+                returnPanel.repaint();
+                returnPanel.revalidate();
+            }
+        });
 
         return returnPanel;
     }
@@ -465,10 +490,13 @@ public class AddSentenceView {
                             SpringLayout.SOUTH, urlPanel
                     );
 
-                    addComponentResize(urlPanel);
-
-                    contentPanel.repaint();
-                    contentPanel.revalidate();
+                    EventQueue.invokeLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            contentPanel.repaint();
+                            contentPanel.revalidate();
+                        }
+                    });
                     mainWindow.getContentScroll().getVerticalScrollBar().setValue(0);
                 }
                 else {
@@ -479,13 +507,15 @@ public class AddSentenceView {
                             SpringLayout.NORTH, sentencePanel, 0,
                             SpringLayout.SOUTH, sourceNamePanel
                     );
-                    removeComponentResize(urlPanel);
-
-                    contentPanel.repaint();
-                    contentPanel.revalidate();
+                    EventQueue.invokeLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            contentPanel.repaint();
+                            contentPanel.revalidate();
+                        }
+                    });
                     mainWindow.getContentScroll().getVerticalScrollBar().repaint();
                     mainWindow.getContentScroll().getVerticalScrollBar().revalidate();
-
                 }
             }
         });
@@ -496,7 +526,18 @@ public class AddSentenceView {
         sourceNameArea.setMaximumSize(new Dimension());
         sourceNameArea.setColumns(areaColumns);
         sourceNameArea.setRows(1);
-        sourceNameArea.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        sourceNameArea.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2, true));
+        sourceNameArea.addFocusListener(new FocusListener() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                sourceNameArea.setBorder(BorderFactory.createLineBorder(selectedColor, 2, true));
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                sourceNameArea.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2, true));
+            }
+        });
 
         sourceNameArea.addKeyListener(new KeyAdapter() {
             //Allows user to tab to next input field
@@ -571,6 +612,15 @@ public class AddSentenceView {
                 SpringLayout.SOUTH, returnPanel, padding,
                 SpringLayout.SOUTH, sourceNameArea
         );
+        EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                returnPanel.setMinimumSize(new Dimension(returnPanel.getWidth(), returnPanel.getHeight()));
+                returnPanel.setPreferredSize(new Dimension(returnPanel.getWidth(), returnPanel.getHeight()));
+                returnPanel.repaint();
+                returnPanel.revalidate();
+            }
+        });
 
         return returnPanel;
     }
@@ -589,7 +639,18 @@ public class AddSentenceView {
         sourceUrlArea.setMaximumSize(new Dimension());
         sourceUrlArea.setColumns(areaColumns);
         sourceUrlArea.setRows(1);
-        sourceUrlArea.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        sourceUrlArea.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2, true));
+        sourceUrlArea.addFocusListener(new FocusListener() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                sourceUrlArea.setBorder(BorderFactory.createLineBorder(selectedColor, 2, true));
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                sourceUrlArea.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2, true));
+            }
+        });
 
         sourceUrlArea.addKeyListener(new KeyAdapter() {
             //Allows user to tab to next input field
@@ -666,7 +727,19 @@ public class AddSentenceView {
         sentenceArea.setMaximumSize(new Dimension());
         sentenceArea.setColumns(areaColumns);
         sentenceArea.setRows(7);
-        sentenceArea.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        sentenceArea.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2, true));
+        sentenceArea.addFocusListener(new FocusListener() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                sentenceArea.setBorder(BorderFactory.createLineBorder(selectedColor, 2, true));
+
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                sentenceArea.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2, true));
+            }
+        });
 
         sentenceArea.addKeyListener(new KeyAdapter() {
             //Allows user to tab to next input field
@@ -674,7 +747,7 @@ public class AddSentenceView {
             public void keyPressed(KeyEvent e) {
                 if(e.getKeyCode() == KeyEvent.VK_TAB) {
                     e.consume();
-                    imageArea.requestFocus();
+                    imagePane.requestFocus();
                     mainWindow.getContentScroll().getViewport().scrollRectToVisible(imagePanel.getBounds());
                 }
             }
@@ -728,6 +801,16 @@ public class AddSentenceView {
                 SpringLayout.SOUTH, sentenceArea
         );
 
+        EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                returnPanel.setMinimumSize(new Dimension(returnPanel.getWidth(), returnPanel.getHeight()));
+                returnPanel.setPreferredSize(new Dimension(returnPanel.getWidth(), returnPanel.getHeight()));
+                returnPanel.repaint();
+                returnPanel.revalidate();
+            }
+        });
+
         return returnPanel;
     }
 
@@ -738,52 +821,54 @@ public class AddSentenceView {
 
         imageLabel.setFont(uiFont);
         nsfwCheck.setFont(uiFont);
-        imageArea.setFont(jpFont);
         addButton.setFont(buttonFont);
+        imagePane.setFont(jpFont);
+        //TODO: try using a compound border to add a decorative border and a border with margins to prevent moving on
+        //TODO: change of decorative border thickness
+        imagePane.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2, true));
+        imagePane.setText("");
+        imagePane.addFocusListener(new FocusListener() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                imagePane.setBorder(BorderFactory.createLineBorder( selectedColor, 2, true));
+            }
 
-        imageArea.setWrapStyleWord(false);
-        imageArea.setLineWrap(true);
-        //setMaximumSize prevents name area from stretching
-        imageArea.setMaximumSize(new Dimension());
-        imageArea.setColumns(areaColumns);
-        imageArea.setRows(1);
-        imageArea.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-        imageArea.addKeyListener(new KeyAdapter() {
+            @Override
+            public void focusLost(FocusEvent e) {
+                imagePane.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2, true));
+            }
+        });
+
+        imagePane.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                e.consume();
+            }
             @Override
             public void keyPressed(KeyEvent e) {
+                e.consume();
                 //allows user to tab to add button
                 if(e.getKeyCode() == KeyEvent.VK_TAB) {
-                    e.consume();
                     addButton.requestFocus();
-                }
-                if(e.isControlDown() && e.getKeyCode() == KeyEvent.VK_V) {
-                    e.consume();
-                    processImage();
-                    imagePane.repaint();
-                    imagePane.revalidate();
-                    EventQueue.invokeLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            contentPanel.repaint();
-                            contentPanel.revalidate();
-                        }
-                    });
+                } else if(e.isControlDown() && e.getKeyCode() == KeyEvent.VK_V) {
+                    if(processImage()) {
+                        imagePane.repaint();
+                        imagePane.revalidate();
+                        EventQueue.invokeLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                contentPanel.repaint();
+                                contentPanel.revalidate();
+                            }
+                        });
+                    }
+                } else if(e.getKeyCode() == KeyEvent.VK_BACK_SPACE || e.getKeyCode() == KeyEvent.VK_DELETE) {
+                    clearImage();
                 }
             }
-            //Refreshes window when the JTextArea for imageArea needs to add rows because input is too large for
-            //current row count
             @Override
             public void keyReleased(KeyEvent e) {
-                imageArea.repaint();
-                imageArea.revalidate();
-
-                EventQueue.invokeLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        contentPanel.repaint();
-                        contentPanel.revalidate();
-                    }
-                });
+                e.consume();
             }
         });
 
@@ -826,41 +911,27 @@ public class AddSentenceView {
         returnPanel.add(nsfwCheck);
 
         panelLayout.putConstraint(
-                SpringLayout.WEST, imageArea, padding,
-                SpringLayout.WEST, returnPanel
-        );
-        panelLayout.putConstraint(
-                SpringLayout.NORTH, imageArea, padding,
-                SpringLayout.SOUTH, imageLabel
-        );
-        returnPanel.add(imageArea);
-
-        panelLayout.putConstraint(
                 SpringLayout.WEST, imagePane, padding,
                 SpringLayout.WEST, returnPanel
         );
         panelLayout.putConstraint(
                 SpringLayout.NORTH, imagePane, padding,
-                SpringLayout.SOUTH, imageArea
+                SpringLayout.SOUTH, imageLabel
         );
         returnPanel.add(imagePane);
 
 
-
-        //imagePane.setBackground(null);
-        //imagePane.setEditable(false);
-        //TODO: Possibly replace the imageArea component with the imagePane, have to work out sizing though
         EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                imagePane.setMinimumSize(new Dimension(imageArea.getWidth(), 50));
-                imagePane.setPreferredSize(new Dimension(imageArea.getWidth(), 50));
+                imagePane.setMinimumSize(new Dimension(sourceNameArea.getWidth(), sourceNameArea.getHeight()));
+                imagePane.setPreferredSize(new Dimension(sourceNameArea.getWidth(), sourceNameArea.getHeight()));
+                imagePane.setMaximumSize(new Dimension(sourceNameArea.getWidth(), sourceNameArea.getHeight()));
                 returnPanel.repaint();
                 returnPanel.revalidate();
+
             }
         });
-        imagePane.setMaximumSize(new Dimension());
-        imagePane.setText("");
 
         panelLayout.putConstraint(
                 SpringLayout.HORIZONTAL_CENTER, addButton, 0,
@@ -873,10 +944,16 @@ public class AddSentenceView {
         returnPanel.add(addButton);
 
         //Constraints for EAST and SOUTH of returnPanel
-        panelLayout.putConstraint(
-                SpringLayout.EAST, returnPanel, padding,
-                SpringLayout.EAST, imageArea
-        );
+        EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                panelLayout.putConstraint(
+                        SpringLayout.EAST, returnPanel, padding,
+                        SpringLayout.EAST, imagePane
+                );
+            }
+        });
+
         panelLayout.putConstraint(
                 SpringLayout.SOUTH, returnPanel, 0,
                 SpringLayout.SOUTH, addButton
@@ -885,64 +962,7 @@ public class AddSentenceView {
         return returnPanel;
     }
 
-    //When adding component after window initialization, resizes main window
-    private void addComponentResize(Component targetComponent) {
-        int panelWidth = contentPanel.getWidth();
-        int panelHeight = contentPanel.getHeight();
-        EventQueue.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                contentPanel.setMinimumSize(new Dimension(panelWidth, panelHeight + targetComponent.getHeight()));
-                contentPanel.setPreferredSize(new Dimension(panelWidth, panelHeight + targetComponent.getHeight()));
-                contentPanel.repaint();
-                contentPanel.revalidate();
-            }
-        });
-        //These repaint/revalidate cover the time resizing
-        contentPanel.repaint();
-        contentPanel.revalidate();
 
-
-        //mainWindow.packFrame();
-        /*
-        Dimension minimumSize = mainWindow.getMainFrame().getMinimumSize();
-        //prevents window from shrinking to minimum size after frame pack, if user has adjusted window size
-        mainWindow.getMainFrame().setMinimumSize(mainWindow.getMainFrame().getSize());
-        mainWindow.packFrame();
-        minimumSize.setSize(
-                minimumSize.getWidth(),
-                minimumSize.getHeight() + targetComponent.getHeight());
-        mainWindow.getMainFrame().setMinimumSize(minimumSize);
-         */
-    }
-
-    //When removing component after window initialization, resizes main window
-    private void removeComponentResize(Component targetComponent) {
-        int panelWidth = contentPanel.getWidth();
-        int panelHeight = contentPanel.getHeight();
-        contentPanel.setMinimumSize(new Dimension(panelWidth, panelHeight - targetComponent.getHeight()));
-        contentPanel.setPreferredSize(new Dimension(panelWidth, panelHeight - targetComponent.getHeight()));
-        contentPanel.repaint();
-        contentPanel.revalidate();
-        //mainWindow.packFrame();
-        /*
-        Dimension minimumSize = mainWindow.getMainFrame().getMinimumSize();
-        //prevents window from shrinking to minimum size after frame pack, if user has adjusted window size
-        mainWindow.getMainFrame().setMinimumSize(mainWindow.getMainFrame().getSize());
-        mainWindow.packFrame();
-        minimumSize.setSize(
-                minimumSize.getWidth(),
-                minimumSize.getHeight() - targetComponent.getHeight());
-        mainWindow.getMainFrame().setMinimumSize(minimumSize);
-        if(mainWindow.getMainFrame().getSize().getHeight() <=
-                minimumSize.getHeight() + targetComponent.getHeight() + 20) {
-            mainWindow.getMainFrame().setSize(
-                    (int)mainWindow.getMainFrame().getSize().getWidth(),
-                    (int)minimumSize.getHeight());
-        }
-
-         */
-    }
 
     //Adds sentence to database, Sentence field must have some content or error is thrown
     private void addSentence() {
@@ -959,11 +979,10 @@ public class AddSentenceView {
                             SpringLayout.SOUTH, sentencePanel, padding,
                             SpringLayout.SOUTH, sentenceArea
                     );
-                    removeComponentResize(sentenceRequiredLabel);
                     sentenceRequiredLabel.setVisible(false);
                 }
                 sentenceArea.setText("");
-                imageArea.setText("");
+                imagePane.setText("");
             } catch (SQLException ex) {
                 throw new RuntimeException(ex);
             }
@@ -984,41 +1003,69 @@ public class AddSentenceView {
                         SpringLayout.SOUTH, sentenceRequiredLabel
                 );
                 sentencePanel.add(sentenceRequiredLabel);
-                addComponentResize(sentenceRequiredLabel);
                 sentenceRequiredLabel.setVisible(true);
             }
         }
-        contentPanel.repaint();
-        contentPanel.revalidate();
+        EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                contentPanel.repaint();
+                contentPanel.revalidate();
+            }
+        });
+        mainWindow.getContentScroll().getVerticalScrollBar().repaint();
+        mainWindow.getContentScroll().getVerticalScrollBar().revalidate();
     }
 
     //TODO: automate naming, should be the same name as the index? makes it unique
-    private void processImage() {
+    private boolean processImage() {
         Transferable content = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null);
         //Determines the image datatype
+        if(content.isDataFlavorSupported(DataFlavor.stringFlavor)) {
+            System.out.println("Is string flavor");
+            return false;
+        }
         if(content.isDataFlavorSupported(DataFlavor.imageFlavor)) {
             System.out.println("Is image flavor");
             try {
                 imagePaneBuffered = (BufferedImage) content.getTransferData(DataFlavor.imageFlavor);
-                imagePaneIcon = scaleImageToIcon(imagePaneBuffered, imageArea.getWidth());
+                imagePaneIcon = scaleImageToIcon(imagePaneBuffered, imagePane.getWidth());
                 imagePane.setText("");
                 imagePane.insertIcon(imagePaneIcon);
-                imagePane.setMinimumSize(new Dimension(imageArea.getWidth(), imagePaneIcon.getIconHeight()));
-                imagePane.setPreferredSize(new Dimension(imageArea.getWidth(), imagePaneIcon.getIconHeight()));
-                contentPanel.setMinimumSize(new Dimension(contentPanel.getWidth(), contentPanel.getWidth() + imagePaneIcon.getIconHeight()));
-                contentPanel.setPreferredSize(new Dimension(contentPanel.getWidth(), contentPanel.getWidth() + imagePaneIcon.getIconHeight()));
-
+                imagePane.setMinimumSize(new Dimension(imagePane.getWidth(), imagePaneIcon.getIconHeight()));
+                imagePane.setPreferredSize(new Dimension(imagePane.getWidth(), imagePaneIcon.getIconHeight()));
+                imagePane.setMaximumSize(new Dimension(imagePane.getWidth(), imagePaneIcon.getIconHeight()));
+                contentPanel.repaint();
+                contentPanel.revalidate();
+                //contentPanel.setMinimumSize(new Dimension(contentPanel.getWidth(), contentPanel.getWidth() + imagePaneIcon.getIconHeight()));
+                //contentPanel.setPreferredSize(new Dimension(contentPanel.getWidth(), contentPanel.getWidth() + imagePaneIcon.getIconHeight()));
             } catch (Exception e) {
                 e.printStackTrace();
             }
         } else if(content.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
             //TODO: will have to determine extension typ to make sure it's an image
             System.out.println("Is file flavor");
-        } else if(content.isDataFlavorSupported(DataFlavor.stringFlavor)) {
-            System.out.println("Is string flavor");
         } else {
             System.out.println("Some other flavor, investigate");
+            return false;
         }
+        return true;
+    }
+
+    //Used to reset the imagePane on user delete or backspace, since all input is consumed on imagePane
+    private void clearImage() {
+        //TODO: Need to also clear the currently buffered image
+        imagePane.setText("");
+        imagePane.setMinimumSize(new Dimension(sourceNameArea.getWidth(), sourceNameArea.getHeight()));
+        imagePane.setPreferredSize(new Dimension(sourceNameArea.getWidth(), sourceNameArea.getHeight()));
+        imagePane.setMaximumSize(new Dimension(sourceNameArea.getWidth(), sourceNameArea.getHeight()));
+        EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                imagePanel.repaint();
+                imagePanel.revalidate();
+            }
+        });
     }
 
     //Reduces a BufferedImage as a ImageIcon at a desired width while maintaining the images original aspect ratio

@@ -12,6 +12,7 @@ import java.util.List;
 public class SetLinkController {
     private final Database database;
     private final DefaultTableModel tableModel;
+    private SentenceObject[] loadedSentences;
     private JTable sentenceTable;
     private JLabel idLabel;
     private JLabel typeLabel;
@@ -33,15 +34,15 @@ public class SetLinkController {
         this.sentenceArea = linkView.getSentenceValueArea();
         this.linkButton = linkView.getSelectBacklinkButton();
         this.linkArea = linkView.getLinkValueArea();
-
         initializeTable();
     }
 
-    //TODO: Remove sentence ID on release, no need for it to be there
+    public int getMaxSentences() {return maxSentences;}
+
+    //TODO: Remove sentence ID from table on live version, no need for it to be there
     //Establishes the tables columns and populates the table with entire sentence database table
     public void initializeTable() {
         String[] columns = {"Sentence ID", "Source Type", "Source Name", "Source URL", "Sentence", "Backlink"};
-        SentenceObject[] loadedSentences;
         for(String column : columns) {
             tableModel.addColumn(column);
         }
@@ -150,7 +151,7 @@ public class SetLinkController {
     }
 
     //Moves the selection on the table to the backlink of the currently selected sentence
-    public void selectSelectedBacklink() {
+    public void tableSelectCurrentSelectBacklink() {
         int selectedRow = sentenceTable.getSelectedRow();
         String targetRow = tableModel.getValueAt(selectedRow, 5).toString();
         for(int i =0; i < sentenceTable.getRowCount(); i++) {
@@ -168,6 +169,10 @@ public class SetLinkController {
         }
         addSentenceToTable(missingSentence);
         sentenceTable.setRowSelectionInterval(0, sentenceTable.getRowCount() - 1);
+    }
+
+    public SentenceObject makeSelection() {
+        return loadedSentences[sentenceTable.getSelectedRow()];
     }
 
     //Clears SetLink selectedInfoPanel components

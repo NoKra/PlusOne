@@ -1,15 +1,27 @@
 package database;
 import content_objects.SentenceObject;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.*;
+import java.time.Instant;
 import java.util.*;
+import java.util.List;
+
+
 
 public class Database {
     //TODO: Create a way to select db save location
-    //private final String jdbcURL = "jdbc:h2:file:C:/Users/NoKra/OneDrive/database/podb";
-    private final String jdbcURL = "jdbc:h2:file:C:/Users/Kraus/OneDrive/database/podb";
+    private String jdbcURI;
+    //private final String jdbcURL = "jdbc:h2:file:C:/Users/Kraus/OneDrive/database/podb";
+    private final String databaseFileName = "plusOneDatabase";
     private final String username = "po";
     private final String password = "";
     private Connection dbConnection;
@@ -17,19 +29,65 @@ public class Database {
     private int maxSentenceIndex;
     private int maxWordIndex;
     private int maxOccurrenceIndex;
+    private final String imagePath =  "C:/Users/Kraus/OneDrive/database/images";
+    private final String tableJsonPath = "./src/main/java/database/database.json";
+    private JSONObject tableJSON;
+    private final String settingsJsonPath = "./src/main/java/user_settings.json";
+    private JSONObject settingsJSON;
+
 
     public Database() throws  SQLException {
-        dbConnection = DriverManager.getConnection(jdbcURL, username, password);
+        try {
+            //TODO: close application if these don't load
+            tableJSON = (JSONObject) new JSONParser().parse(new FileReader(tableJsonPath));
+            settingsJSON = (JSONObject) new JSONParser().parse(new FileReader(settingsJsonPath));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
+        jdbcURI = "jdbc:h2:file:" + settingsJSON.get("DATABASE_PATH") + databaseFileName;
+        try {
+            verifyDirectories();
+        } catch (IOException exception) {
+            exception.printStackTrace();
+        }
+
+        dbConnection = DriverManager.getConnection(jdbcURI, username, password);
         checkForMissingTables();
         maxSentenceIndex = findMaxSentenceIndex();
 
         System.out.println("Current Sentence Index: " + maxSentenceIndex);
     }
 
-    public Connection getDbConnection() {
-        return dbConnection;
+    public Connection getDbConnection() { return dbConnection; }
+    public JSONObject getTableJSON() {
+        return tableJSON;
+    }
+    public int getMaxSentenceIndex() { return maxSentenceIndex; }
+
+    //Verifies the database/backup/images directories are present, creates if not
+    private void verifyDirectories() throws IOException {
+        Path backupDirectory = Paths.get(settingsJSON.get("DATABASE_PATH") + "backup/");
+        if(!Files.exists(backupDirectory)) {
+            Files.createDirectories(backupDirectory);
+            System.out.println("Backup directory created");
+        }
+
+        Path generalImageDirectory = Paths.get(String.valueOf(settingsJSON.get("GENERAL_IMAGES")));
+        if(!Files.exists(generalImageDirectory)) {
+            Files.createDirectories(generalImageDirectory);
+            System.out.println("General image directory created");
+        }
+
+        Path nsfwImageDirectory = Paths.get(String.valueOf(settingsJSON.get("NSFW_IMAGES")));
+        if(!Files.exists(nsfwImageDirectory)) {
+            Files.createDirectories(nsfwImageDirectory);
+            System.out.println("NSFW image directory created");
+        }
+
     }
 
+    //Creates an extra copy of the current live database in the
     public void backupDatabase()  {
         //Need to close connection to unlock .mv.db file
         try {
@@ -39,13 +97,20 @@ public class Database {
         }
         FileInputStream inputStream;
         FileOutputStream outputStream;
-        //TODO: Release version - Rework this hardcoding of substrings to work within source directory
-        //TODO: Also, implement some sort of versioning to have several backups, consider doing interval backups by date?
-        String sourceSub = jdbcURL.substring(13);
-        String[] sourceFiles = {sourceSub + ".mv.db", sourceSub + ".trace.db"};
-        String destinationSub = sourceSub.substring(0, sourceSub.length() - 5);
-        String[] destinationFiles = {destinationSub + "/backup/podb.mv.db", destinationSub + "/backup/podb.trace.db"};
+        //TODO: Implement some sort of versioning to have several backups, consider doing interval backups by date?
+        String databasePath = String.valueOf(settingsJSON.get("DATABASE_PATH"));
+        String[] sourceFiles = {
+                databasePath + databaseFileName + ".mv.db",
+                databasePath + databaseFileName + ".trace.db"};
+        String backupPath = databasePath + "backup/";
+        String[] destinationFiles = {
+                backupPath + databaseFileName + ".mv.db",
+                backupPath + databaseFileName + ".trace.db"};
         for(int i = 0; i < sourceFiles.length; i++) {
+            Path filePath = Paths.get(sourceFiles[i]);
+            if(!Files.exists(filePath)) {
+                continue;
+            }
             try {
                 inputStream = new FileInputStream(sourceFiles[i]);
                 outputStream = new FileOutputStream(destinationFiles[i]);
@@ -61,7 +126,7 @@ public class Database {
             }
         }
         try {
-            dbConnection = DriverManager.getConnection(jdbcURL, username, password);
+            dbConnection = DriverManager.getConnection(jdbcURI, username, password);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -76,7 +141,7 @@ public class Database {
         }
         FileInputStream inputStream;
         FileOutputStream outputStream;
-        String destinationSub = jdbcURL.substring(13);
+        String destinationSub = jdbcURI.substring(13);
         String[] destinationFiles = {destinationSub + ".mv.db", destinationSub + ".trace.db"};
         String sourceSub = destinationSub.substring(0, destinationSub.length() - 5);
         String[] sourceFiles = {sourceSub + "/backup/podb.mv.db", sourceSub + "/backup/podb.trace.db"};
@@ -96,7 +161,7 @@ public class Database {
             }
         }
         try {
-            dbConnection = DriverManager.getConnection(jdbcURL, username, password);
+            dbConnection = DriverManager.getConnection(jdbcURI, username, password);
             maxSentenceIndex = findMaxSentenceIndex();
             //TODO: implement finds max for word and occurrences later
         } catch (SQLException e) {
@@ -104,8 +169,48 @@ public class Database {
         }
     }
 
-    public int getMaxSentenceIndex() {
-        return maxSentenceIndex;
+    //Creates table from database.json using the target table name
+    public void createTable(String tableName) throws SQLException {
+        JSONObject tableObject = (JSONObject) tableJSON.get(tableName);
+        Iterator<?> columns = tableObject.keySet().iterator();
+        StringBuilder sqlStatementBuilder = new StringBuilder("CREATE TABLE " + tableName + "(");
+        while (columns.hasNext()) {
+            String columnName = String.valueOf(columns.next());
+            JSONObject column = (JSONObject) tableObject.get(columnName);
+            StringBuilder columnStatement = new StringBuilder(String.valueOf(column.get("TYPE")));
+            if (columnStatement.toString().equals("VARCHAR")) {
+                String sizeValue = "(" + column.get("SIZE") + ")";
+                columnStatement.append(sizeValue);
+            }
+            if (column.containsKey("OPTION")) {
+                columnStatement.append(" ");
+                JSONArray columnOptions = (JSONArray) column.get("OPTION");
+                for (int i = 0; i < columnOptions.size() - 1; i++) {
+                    String option = columnOptions.get(i) + " ";
+                    columnStatement.append(option);
+                }
+                columnStatement.append(columnOptions.get(columnOptions.size() - 1));
+            }
+            String columnEntry = columnName + " " + columnStatement + ", ";
+            sqlStatementBuilder.append(columnEntry);
+        }
+        String sqlStatement = sqlStatementBuilder.substring(0, sqlStatementBuilder.length() - 2) + ");";
+        dbConnection.createStatement().execute(sqlStatement);
+        System.out.printf("%s table created\n", tableName);
+    }
+
+    private String buildSqlInsertStatement(String[][] columnEntries) {
+        StringBuilder sqlFrontHalf = new StringBuilder("INSERT INTO SENTENCES (");
+        StringBuilder sqlBackHalf = new StringBuilder(") VALUES (");
+        for(int i = 0; i < columnEntries.length - 1; i++) {
+            String front = columnEntries[i][0] + ", ";
+            sqlFrontHalf.append(front);
+
+            String back = columnEntries[i][1] + ", ";
+            sqlBackHalf.append(back);
+        }
+        return sqlFrontHalf + columnEntries[columnEntries.length - 1][0] +
+                sqlBackHalf + columnEntries[columnEntries.length - 1][1] + ");";
     }
 
     public int findMaxSentenceIndex() throws SQLException {
@@ -128,64 +233,11 @@ public class Database {
         return 0;
     }
 
-    public void initAllTables() throws SQLException {
-        initSentencesTable();
-        initWordsTable();
-        initOccurrencesTable();
-    }
-
-    public void initSentencesTable() throws SQLException {
-        String sentence_table = "CREATE TABLE SENTENCES(" +
-                "SENTENCE_KEY INT AUTO_INCREMENT, " +
-                "SOURCE_TYPE VARCHAR(31), " +
-                "SOURCE_NAME VARCHAR(255), " +
-                "SOURCE_URL VARCHAR(511), " +
-                "SENTENCE VARCHAR(1023) NOT NULL, " +
-                "IMAGE_PATH VARCHAR(511), " +
-                "NSFW BOOL, " +
-                "PRIMARY KEY (SENTENCE_KEY), " +
-                "BACK_LINK INT" + //If sentence is from a longer text, links backwards to provide reference
-                ");";
-
-        dbConnection.createStatement().execute(sentence_table);
-        System.out.println("Sentence table created");
-    }
-
-    public void initWordsTable() throws SQLException {
-        String word_table = "CREATE TABLE WORDS(" +
-                "WORD_KEY INT, " +
-                "KANJI VARCHAR(63), " +
-                "KANA VARCHAR(127), " +
-                "PART_OF_SPEECH VARCHAR(31), " +
-                "ENGLISH_DEF VARCHAR(511), " +
-                "JAPANESE_DEF VARCHAR(511), " +
-                "TAGS VARCHAR(63), " +
-                "LOWEST_PLUS_VAL INT, " +
-                "FREQUENCY INT, " +
-                "PRIMARY KEY (WORD_KEY)" +
-                ");";
-        dbConnection.createStatement().execute(word_table);
-        System.out.println("Words table created");
-    }
-
-    public void initOccurrencesTable() throws SQLException {
-        String occurrence_table = "CREATE TABLE OCCURRENCES(" +
-                "OCCURRENCE_KEY INT, " +
-                "SENTENCE_KEY INT, " +
-                "WORD_KEY INT, " +
-                "APPLICABLE_DEF VARCHAR(511), " +
-                "PLUS_VALUE INT" +
-                ");";
-        dbConnection.createStatement().execute(occurrence_table);
-        System.out.println("Occurrences table created");
-    }
-
     //TODO: ADD FOREIGN KEY CONSTRAINTS TO OCCURRENCES TABLE
 
     //Checks to make sure the database has all required tables created
     public void checkForMissingTables() throws SQLException {
         ArrayList<String> requiredTables = new ArrayList<>(tables);
-        int requiredCount = requiredTables.size();
         ArrayList<String> existsTables = new ArrayList<>();
 
         ResultSet rs = dbConnection.createStatement().executeQuery("SHOW TABLES;");
@@ -199,19 +251,8 @@ public class Database {
             return;
         }
 
-        if(requiredTables.size() == requiredCount) {
-            initAllTables();
-            return;
-        }
-
         for(String table : requiredTables) {
-            System.out.println(table);
-            switch (table) {
-                case "SENTENCES" -> initSentencesTable();
-                case "WORDS" -> initWordsTable();
-                case "OCCURRENCES" -> initOccurrencesTable();
-                default -> System.out.println("Table init method missing");
-            }
+            createTable(table);
         }
     }
 
@@ -240,22 +281,43 @@ public class Database {
         dbConnection.createStatement().execute(sql);
     }
 
-    public void insertSentence(SentenceObject sentence) throws SQLException {
-        int sqlKey = sentence.getSentenceKey();
-        String sqlType = "'" + sentence.getSourceType() + "'";
-        String sqlName = sentence.getSourceName().equals("") ? "NULL" : "'" + sentence.getSourceName() + "'";
-        String sqlUrl = sentence.getSourceUrl().equals("") ? "NULL" : "'" + sentence.getSourceUrl() + "'";
-        String sqlSentence = "'" + sentence.getSentence() + "'";
-        String sqlImagePath = sentence.getImagePath().equals("") ? "NULL" : "'" + sentence.getImagePath() + "'";
-        String sqlNsfw = sentence.getNsfwTag() ? "TRUE" : "FALSE";
-        int sqlBacklink = sentence.getBacklink();
+    private String[][] prepareSentenceColumns(SentenceObject sentence) {
+        int sourceKey = sentence.getSentenceKey();
+        String sourceType = "'" + sentence.getSourceType() + "'";
+        String sourceName = sentence.getSourceName().equals("") ? "NULL" : "'" + sentence.getSourceName() + "'";
+        String sourceURL = sentence.getSourceUrl().equals("") ? "NULL" : "'" + sentence.getSourceUrl() + "'";
+        String sourceSentence = "'" + sentence.getSentence() + "'";
+        String sourceImagePath = sentence.getImagePath();
+        String sourceNSFW = sentence.getNsfwTag() ? "TRUE" : "FALSE";
+        int sourceBacklink = sentence.getBacklink();
+        String sourceCreatedAt = "'" + sentence.getCreatedAt() + "'";
+        String sourceUpdatedAt = "NULL";
 
-        String sql = String.format("INSERT INTO SENTENCES VALUES ( " +
-                        "%d, %s, %s, %s, %s, %s, %s, %s);",
-                sqlKey, sqlType, sqlName, sqlUrl, sqlSentence, sqlImagePath, sqlNsfw, sqlBacklink);
+
+        return new String[][] {
+                {"SENTENCE_KEY", Integer.toString(sourceKey)},
+                {"SOURCE_TYPE", sourceType},
+                {"SOURCE_NAME", sourceName},
+                {"SOURCE_URL", sourceURL},
+                {"SENTENCE", sourceSentence},
+                {"IMAGE_PATH", sourceImagePath},
+                {"NSFW", sourceNSFW},
+                {"BACK_LINK", Integer.toString(sourceBacklink)},
+                {"CREATED_AT", sourceCreatedAt},
+                {"UPDATED_AT", sourceUpdatedAt}
+        };
+    }
+
+    public void insertSentence(SentenceObject sentence, boolean newImage) throws SQLException {
+        String[][] columnEntries = prepareSentenceColumns(sentence);
+       String sqlStatement = buildSqlInsertStatement(columnEntries);
+
         maxSentenceIndex ++;
-        System.out.println(sql);
-        dbConnection.createStatement().execute(sql);
+        System.out.println(sqlStatement);
+        dbConnection.createStatement().execute(sqlStatement);
+        if(newImage) {
+            saveImageToLocal(sentence.getSentenceImage(), sentence.getImagePath(), sentence.getNsfwTag());
+        }
     }
 
     public void updateSentence(SentenceObject sentence) throws SQLException {
@@ -277,6 +339,8 @@ public class Database {
         }
         String sqlNsfw = sentence.getNsfwTag() ? "TRUE" : "FALSE";
         int sqlBacklink = sentence.getBacklink();
+        String sqlCreatedAt = "'" + sentence.getCreatedAt() + "'";
+        String sqlUpdatedAt = "'" + createTimestamp() + "'";
 
         String sql = String.format("UPDATE SENTENCES SET " +
                         "SOURCE_TYPE = %s, " +
@@ -285,9 +349,12 @@ public class Database {
                         "SENTENCE = %s, " +
                         "IMAGE_PATH = %s, " +
                         "NSFW = %s, " +
-                        "BACK_LINK = %s "+
+                        "BACK_LINK = %s, "+
+                        "CREATED_AT = %s, " +
+                        "UPDATED_AT = %s " +
                         "WHERE SENTENCE_KEY = %s;",
-                sqlType, sqlName, sqlUrl, sqlSentence, sqlImagePath, sqlNsfw, sqlBacklink, sqlKey);
+                sqlType, sqlName, sqlUrl, sqlSentence, sqlImagePath, sqlNsfw, sqlBacklink,
+                sqlCreatedAt, sqlUpdatedAt, sqlKey);
         System.out.println(sql);
         dbConnection.createStatement().execute(sql);
     }
@@ -340,11 +407,48 @@ public class Database {
         String imgPath = set.getString("IMAGE_PATH");
         boolean nsfw = set.getBoolean("NSFW");
         int backlink = set.getInt("BACK_LINK");
+        String createdAt = set.getTimestamp("CREATED_AT").toString();
+        Timestamp updatedAtStamp = set.getTimestamp("UPDATED_AT");
+        String updatedAt = (updatedAtStamp != null) ? updatedAtStamp.toString() : null;
+        BufferedImage sentenceImage = fetchLocalImage(sentenceKey, nsfw);
 
-        return new SentenceObject(sentenceKey, sourceType, sourceName, sourceURL, sentence, imgPath, nsfw, backlink);
+        return new SentenceObject(
+                sentenceKey, sourceType, sourceName, sourceURL, sentence, imgPath, nsfw, backlink,
+                createdAt, updatedAt, sentenceImage);
     }
 
+    public static String createTimestamp() {
+        String[] now = Instant.now().toString().split("[.T]");
+        return now[0] + " " + now[1];
+    }
 
+    public void saveImageToLocal(BufferedImage sentenceImage, String filename, boolean nsfw) {
+        String path = imagePath;
+        if(nsfw) {
+            path += "/nsfw/";
+        } else {
+            path += "/general/";
+        }
+        String fullPath = path + filename + ".png";
+        File outputFile = new File(fullPath);
+        try{
+            ImageIO.write(sentenceImage, "png", outputFile);
+            System.out.println("Image successfully saved to: " + outputFile.getAbsolutePath());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public BufferedImage fetchLocalImage(int sentenceKey, boolean nsfw) {
+        String path = imagePath;
+        if(nsfw) {
+            path += "/nsfw/";
+        } else {
+            path += "/general/";
+        }
+
+        return null;
+    }
 
     public void insertWord() throws SQLException {
         //TODO: Write sql insert word statement

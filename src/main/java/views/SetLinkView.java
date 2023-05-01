@@ -61,7 +61,11 @@ public class SetLinkView {
         setWindow.setWindowVisible();
         setWindow.getMainFrame().setLocationRelativeTo(null);
         linkController = new SetLinkController(mainWindow.getDatabase(), this);
-        sentenceTable.setRowSelectionInterval(0, 0);
+        if(linkController.getMaxSentences() > 0) {
+            sentenceTable.setRowSelectionInterval(0, 0);
+        } else {
+            selectLinkButton.setEnabled(false);
+        }
         sizeTable();
     }
 
@@ -152,7 +156,7 @@ public class SetLinkView {
         tableScroll.setMinimumSize(tableScrollDim);
         tableScroll.setPreferredSize(tableScrollDim);
         setWindow.getMainFrame().setMinimumSize(new Dimension(
-                (int)(tableScroll.getPreferredSize().getWidth() * 1.5),
+                (int)(tableScroll.getPreferredSize().getWidth() * 1.25),
                 (int)(contentPanel.getHeight() * 1.1)
         ));
 
@@ -315,7 +319,7 @@ public class SetLinkView {
         selectBacklinkButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                linkController.selectSelectedBacklink();
+                linkController.tableSelectCurrentSelectBacklink();
             }
         });
 
@@ -327,16 +331,10 @@ public class SetLinkView {
         linkValueArea.setColumns(areaColumns);
         linkValueArea.setRows(1);
 
-
         selectLinkButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                addSentenceControl.setBackLink(
-                        typeValueLabel.getText(),
-                        nameValueLabel.getText(),
-                        urlValueLabel.getText(),
-                        sentenceValueArea.getText(),
-                        Integer.parseInt(idValueLabel.getText()));
+                addSentenceControl.setBackLink(linkController.makeSelection());
                 setWindow.destroyWindow();
             }
         });

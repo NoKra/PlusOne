@@ -1,6 +1,6 @@
 package views;
 
-import controllers.AddSentenceControl;
+import controllers.AddSentenceController;
 import controllers.SetLinkController;
 import window_object.WindowObject;
 
@@ -14,7 +14,7 @@ import java.awt.*;
 import java.awt.event.*;
 
 public class SetLinkView {
-    private final AddSentenceControl addSentenceControl;
+    private final AddSentenceController addSentenceController;
     private final WindowObject setWindow;
     private final Font jpFont = new Font("Meiryo", Font.BOLD, 16);
     private final Font uiFont = new Font("Meiryo UI", Font.BOLD, 14);
@@ -54,8 +54,8 @@ public class SetLinkView {
     private JTextArea linkValueArea = new JTextArea("  ");
     private JButton selectLinkButton = new JButton("Select");
 
-    public SetLinkView(WindowObject mainWindow, AddSentenceControl addSentenceControl) {
-        this.addSentenceControl = addSentenceControl;
+    public SetLinkView(WindowObject mainWindow, AddSentenceController addSentenceController) {
+        this.addSentenceController = addSentenceController;
         setWindow = new WindowObject(mainWindow.getDatabase(), false);
         createView();
         setWindow.setWindowVisible();
@@ -334,7 +334,7 @@ public class SetLinkView {
         selectLinkButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                addSentenceControl.setBackLink(linkController.makeSelection());
+                addSentenceController.setBackLink(linkController.makeSelection());
                 setWindow.destroyWindow();
             }
         });

@@ -1,8 +1,7 @@
 package views;
 
 
-import controllers.AddSentenceControl;
-import org.w3c.dom.css.Rect;
+import controllers.AddSentenceController;
 import window_object.WindowObject;
 
 import javax.swing.*;
@@ -16,7 +15,7 @@ import java.sql.SQLException;
 
 public class AddSentenceView {
     private final WindowObject mainWindow;
-    private final AddSentenceControl sentenceControl;
+    private final AddSentenceController sentenceControl;
     private SetLinkView setLinkView = null;
     private final int padding = 20;
     private final int areaColumns = 33;
@@ -104,7 +103,7 @@ public class AddSentenceView {
     public boolean isPreviousWasNsfwImage() { return previousWasNsfwImage; }
     public boolean isNewImage() { return isNewImage; }
 
-    private AddSentenceControl createView() {
+    private AddSentenceController createView() {
 
         navPanel = mainWindow.createNavPanel();
         contentPanel = mainWindow.createContentPanel(navPanel);
@@ -205,7 +204,7 @@ public class AddSentenceView {
             }
         });
 
-        return new AddSentenceControl(this, mainWindow.getDatabase());
+        return new AddSentenceController(this, mainWindow.getDatabase());
     }
 
     //Create panel that has source type options and gives checkbox for sequential sentence option

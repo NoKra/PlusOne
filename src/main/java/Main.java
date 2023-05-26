@@ -1,5 +1,5 @@
 import database.Database;
-import views.InitializationView;
+import views.InitializationDialog;
 import window_object.WindowObject;
 
 import javax.swing.*;
@@ -14,18 +14,21 @@ public class Main {
     private final static Path settingsJsonPath = Paths.get( "./src/main/java/user_settings.json");
 
     public static void main(String[] args) throws SQLException {
-        if(Files.exists(settingsJsonPath)) {
-            new InitializationView();
-            return;
+        if(!Files.exists(settingsJsonPath)) {
+            new InitializationDialog();
         }
-        database = startDatabase();
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                //WindowObject mainWindow = new WindowObject(database, true);
-                //mainWindow.getNav().toAddSentence();
-            }
-        });
+        if(Files.exists(settingsJsonPath)) {
+            database = startDatabase();
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    WindowObject mainWindow = new WindowObject(database, true);
+                    mainWindow.getNav().toAddSentence();
+                }
+            });
+        } else {
+            System.exit(0);
+        }
     }
 
     public static Database startDatabase() throws SQLException {

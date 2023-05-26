@@ -29,7 +29,6 @@ public class Database {
     private int maxSentenceIndex;
     private int maxWordIndex;
     private int maxOccurrenceIndex;
-    private final String imagePath =  "C:/Users/Kraus/OneDrive/database/images";
     private final String tableJsonPath = "./src/main/java/database/database.json";
     private JSONObject tableJSON;
     private final String settingsJsonPath = "./src/main/java/user_settings.json";
@@ -423,11 +422,11 @@ public class Database {
     }
 
     public void saveImageToLocal(BufferedImage sentenceImage, String filename, boolean nsfw) {
-        String path = imagePath;
+        String path;
         if(nsfw) {
-            path += "/nsfw/";
+            path = String.valueOf(settingsJSON.get("NSFW_IMAGES"));
         } else {
-            path += "/general/";
+            path = String.valueOf(settingsJSON.get("GENERAL_IMAGES"));
         }
         String fullPath = path + filename + ".png";
         File outputFile = new File(fullPath);
@@ -440,11 +439,11 @@ public class Database {
     }
 
     public BufferedImage fetchLocalImage(int sentenceKey, boolean nsfw) {
-        String path = imagePath;
+        String path;
         if(nsfw) {
-            path += "/nsfw/";
+            path = String.valueOf(settingsJSON.get("NSFW_IMAGES"));
         } else {
-            path += "/general/";
+            path = String.valueOf(settingsJSON.get("GENERAL_IMAGES"));
         }
 
         return null;

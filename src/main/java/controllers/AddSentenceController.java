@@ -11,7 +11,7 @@ import java.sql.SQLException;
 import java.util.Objects;
 
 
-public class AddSentenceControl {
+public class AddSentenceController {
     private final AddSentenceView addSentenceView;
     private final Database database;
     private final JComboBox<String> sourceType;
@@ -29,7 +29,7 @@ public class AddSentenceControl {
     private String imageId = null;
 
     //Instantiation
-    public AddSentenceControl(AddSentenceView addSentenceView, Database database) {
+    public AddSentenceController(AddSentenceView addSentenceView, Database database) {
         this.addSentenceView = addSentenceView;
         this.database = database;
         this.sourceType = addSentenceView.getSourceTypeCombo();

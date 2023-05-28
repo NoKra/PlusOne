@@ -1,6 +1,7 @@
 package views;
 
 import controllers.InitializationController;
+import settings.Settings;
 
 import javax.swing.*;
 import java.awt.*;
@@ -41,8 +42,8 @@ public class InitializationDialog {
     private final JButton confirmButton = new JButton("Confirm");
 
     //Constructor
-    public InitializationDialog() {
-        initializationController = new InitializationController(this);
+    public InitializationDialog(Settings inSettings) {
+        initializationController = new InitializationController(this, inSettings);
         container.setLayout(containerLayout);
         promptPanel = createPromptPanel();
         customPanel = createCustomPathPanel();

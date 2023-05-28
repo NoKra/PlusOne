@@ -3,6 +3,7 @@ import content_objects.SentenceObject;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import settings.Settings;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -18,12 +19,7 @@ import java.util.List;
 
 
 public class Database {
-    //TODO: Create a way to select db save location
-    private String jdbcURI;
-    //private final String jdbcURL = "jdbc:h2:file:C:/Users/Kraus/OneDrive/database/podb";
-    private final String databaseFileName = "plusOneDatabase";
-    private final String username = "po";
-    private final String password = "";
+    private final Settings settings;
     private Connection dbConnection;
     private final List<String> tables = List.of("SENTENCES", "WORDS", "OCCURRENCES");
     private int maxSentenceIndex;
@@ -31,54 +27,65 @@ public class Database {
     private int maxOccurrenceIndex;
     private final String tableJsonPath = "./src/main/java/database/database.json";
     private JSONObject tableJSON;
-    private final String settingsJsonPath = "./src/main/java/user_settings.json";
-    private JSONObject settingsJSON;
 
 
-    public Database() throws  SQLException {
+    public Database(Settings settings) throws  SQLException {
+        this.settings = settings;
         try {
-            //TODO: close application if these don't load
             tableJSON = (JSONObject) new JSONParser().parse(new FileReader(tableJsonPath));
-            settingsJSON = (JSONObject) new JSONParser().parse(new FileReader(settingsJsonPath));
         } catch (Exception e) {
             e.printStackTrace();
             return;
         }
-        jdbcURI = "jdbc:h2:file:" + settingsJSON.get("DATABASE_PATH") + databaseFileName;
         try {
-            verifyDirectories();
+            verifySubDirectories();
         } catch (IOException exception) {
             exception.printStackTrace();
         }
 
-        dbConnection = DriverManager.getConnection(jdbcURI, username, password);
+        dbConnection = DriverManager.getConnection(
+                this.settings.getDatabaseURL(),
+                this.settings.getDatabaseUsername(),
+                this.settings.getDatabasePassword());
         checkForMissingTables();
         maxSentenceIndex = findMaxSentenceIndex();
 
         System.out.println("Current Sentence Index: " + maxSentenceIndex);
+
+        //Ensures lock for H2 database is removed upon exiting
+        Runtime.getRuntime().addShutdownHook(new Thread(){
+            @Override
+            public void run() {
+                try {
+                    dbConnection.close();
+                    System.out.println("Database connection closed");
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
     }
 
-    public Connection getDbConnection() { return dbConnection; }
     public JSONObject getTableJSON() {
         return tableJSON;
     }
     public int getMaxSentenceIndex() { return maxSentenceIndex; }
 
     //Verifies the database/backup/images directories are present, creates if not
-    private void verifyDirectories() throws IOException {
-        Path backupDirectory = Paths.get(settingsJSON.get("DATABASE_PATH") + "backup/");
+    private void verifySubDirectories() throws IOException {
+        Path backupDirectory = Paths.get(settings.getDatabaseBackupPath());
         if(!Files.exists(backupDirectory)) {
             Files.createDirectories(backupDirectory);
             System.out.println("Backup directory created");
         }
 
-        Path generalImageDirectory = Paths.get(String.valueOf(settingsJSON.get("GENERAL_IMAGES")));
+        Path generalImageDirectory = Paths.get(settings.getGeneralImagePath());
         if(!Files.exists(generalImageDirectory)) {
             Files.createDirectories(generalImageDirectory);
             System.out.println("General image directory created");
         }
 
-        Path nsfwImageDirectory = Paths.get(String.valueOf(settingsJSON.get("NSFW_IMAGES")));
+        Path nsfwImageDirectory = Paths.get(settings.getNsfwImagePath());
         if(!Files.exists(nsfwImageDirectory)) {
             Files.createDirectories(nsfwImageDirectory);
             System.out.println("NSFW image directory created");
@@ -97,14 +104,14 @@ public class Database {
         FileInputStream inputStream;
         FileOutputStream outputStream;
         //TODO: Implement some sort of versioning to have several backups, consider doing interval backups by date?
-        String databasePath = String.valueOf(settingsJSON.get("DATABASE_PATH"));
+        String databaseFileConcat = settings.getDatabasePath() + settings.getDatabaseName();
         String[] sourceFiles = {
-                databasePath + databaseFileName + ".mv.db",
-                databasePath + databaseFileName + ".trace.db"};
-        String backupPath = databasePath + "backup/";
+                databaseFileConcat + ".mv.db",
+                databaseFileConcat + ".trace.db"};
+        String databaseBackupFileConcat = settings.getDatabaseBackupPath() + settings.getDatabaseName();
         String[] destinationFiles = {
-                backupPath + databaseFileName + ".mv.db",
-                backupPath + databaseFileName + ".trace.db"};
+                databaseBackupFileConcat + ".mv.db",
+                databaseBackupFileConcat + ".trace.db"};
         for(int i = 0; i < sourceFiles.length; i++) {
             Path filePath = Paths.get(sourceFiles[i]);
             if(!Files.exists(filePath)) {
@@ -125,7 +132,10 @@ public class Database {
             }
         }
         try {
-            dbConnection = DriverManager.getConnection(jdbcURI, username, password);
+            dbConnection = DriverManager.getConnection(
+                    settings.getDatabaseURL(),
+                    settings.getDatabaseUsername(),
+                    settings.getDatabasePassword());
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -140,10 +150,14 @@ public class Database {
         }
         FileInputStream inputStream;
         FileOutputStream outputStream;
-        String destinationSub = jdbcURI.substring(13);
-        String[] destinationFiles = {destinationSub + ".mv.db", destinationSub + ".trace.db"};
-        String sourceSub = destinationSub.substring(0, destinationSub.length() - 5);
-        String[] sourceFiles = {sourceSub + "/backup/podb.mv.db", sourceSub + "/backup/podb.trace.db"};
+        String databaseFileConcat = settings.getDatabasePath() + settings.getDatabaseName();
+        String[] destinationFiles = {
+                databaseFileConcat + ".mv.db",
+                databaseFileConcat + ".trace.db"};
+        String databaseBackupFileConcat = settings.getDatabaseBackupPath() + settings.getDatabaseName();
+        String[] sourceFiles = {
+                databaseBackupFileConcat + ".mv.db",
+                databaseBackupFileConcat + ".trace.db"};
         for(int i = 0; i < destinationFiles.length; i++) {
             try {
                 inputStream = new FileInputStream(sourceFiles[i]);
@@ -160,9 +174,11 @@ public class Database {
             }
         }
         try {
-            dbConnection = DriverManager.getConnection(jdbcURI, username, password);
+            dbConnection = DriverManager.getConnection(
+                    settings.getDatabaseURL(),
+                    settings.getDatabaseUsername(),
+                    settings.getDatabasePassword());
             maxSentenceIndex = findMaxSentenceIndex();
-            //TODO: implement finds max for word and occurrences later
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -424,9 +440,9 @@ public class Database {
     public void saveImageToLocal(BufferedImage sentenceImage, String filename, boolean nsfw) {
         String path;
         if(nsfw) {
-            path = String.valueOf(settingsJSON.get("NSFW_IMAGES"));
+            path = settings.getNsfwImagePath();
         } else {
-            path = String.valueOf(settingsJSON.get("GENERAL_IMAGES"));
+            path = settings.getGeneralImagePath();
         }
         String fullPath = path + filename + ".png";
         File outputFile = new File(fullPath);
@@ -441,9 +457,9 @@ public class Database {
     public BufferedImage fetchLocalImage(int sentenceKey, boolean nsfw) {
         String path;
         if(nsfw) {
-            path = String.valueOf(settingsJSON.get("NSFW_IMAGES"));
+            path = settings.getNsfwImagePath();
         } else {
-            path = String.valueOf(settingsJSON.get("GENERAL_IMAGES"));
+            path = settings.getGeneralImagePath();
         }
 
         return null;
@@ -451,8 +467,8 @@ public class Database {
 
     public int findTotalImageCount() {
         int imageCount = 0;
-        File generalImages = new File(String.valueOf(settingsJSON.get("GENERAL_IMAGES")));
-        File nsfwImages = new File(String.valueOf(settingsJSON.get("NSFW_IMAGES")));
+        File generalImages = new File(settings.getGeneralImagePath());
+        File nsfwImages = new File(settings.getNsfwImagePath());
 
         imageCount += Objects.requireNonNull(generalImages.list()).length;
         imageCount += Objects.requireNonNull(nsfwImages.list()).length;
@@ -520,7 +536,7 @@ public class Database {
             exception.printStackTrace();
         }
 
-        return entriesPerDay;
+        return entriesPerDay == -1.0 ? 0.0 : entriesPerDay;
     }
 
     public void insertWord() throws SQLException {

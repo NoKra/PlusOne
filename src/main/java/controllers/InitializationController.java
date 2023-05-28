@@ -1,6 +1,7 @@
 package controllers;
 
 import org.json.simple.JSONObject;
+import settings.Settings;
 import views.InitializationDialog;
 
 import javax.swing.*;
@@ -15,6 +16,10 @@ import java.nio.file.Paths;
 
 public class InitializationController {
     private final InitializationDialog initializationDialog;
+    private final Settings settings;
+    private final String defaultPath = "./src/main/resources/onePlusDatabase/";
+
+    //Components
     private final JButton defaultButton;
     private final JButton customButton;
     private final JButton databaseLocationButton;
@@ -27,8 +32,9 @@ public class InitializationController {
 
 
     //Constructor
-    public InitializationController(InitializationDialog parentView) {
+    public InitializationController(InitializationDialog parentView, Settings inSettings) {
         initializationDialog = parentView;
+        settings = inSettings;
         defaultButton = parentView.getDefaultButton();
         customButton = parentView.getCustomButton();
         databaseLocationButton = parentView.getDatabaseLocationButton();
@@ -43,37 +49,11 @@ public class InitializationController {
         setCustomPanelComponentActions();
     }
 
-    //Writes the provided user settings to user_settings.json file
-    private void writeUserSettings(JSONObject settingsJSON) throws IOException {
-        FileWriter file = new FileWriter("./src/main/java/user_settings.json");
-        file.write(settingsJSON.toJSONString());
-        System.out.println("User Settings JSON successfully created");
-        file.flush();
-        file.close();
-    }
-
-    //Creates settings JSON object with database path and image paths
-    @SuppressWarnings("unchecked")
-    private JSONObject createSettingsJSON(String databasePath, String imagePath) {
-        JSONObject settingJSON = new JSONObject();
-        settingJSON.put("DATABASE_PATH", databasePath);
-        settingJSON.put("IMAGE_PATH", imagePath);
-        settingJSON.put("GENERAL_IMAGES", imagePath + "general/");
-        settingJSON.put("NSFW_IMAGES", imagePath + "nsfw/");
-        return settingJSON;
-    }
-
     //Creates user settings using default locations (local file)
     private void createDefaultUserSettings() {
-        String databasePath = "./src/main/resources/onePlusDatabase/";
-        String imagePath = databasePath + "images/";
-        JSONObject settingJSON = createSettingsJSON(databasePath, imagePath);
-
-        try {
-            writeUserSettings(settingJSON);
-        } catch (IOException exception) {
-            exception.printStackTrace();
-        }
+        String imagePath = defaultPath + "images/";
+        settings.initializeSettingsJSON(defaultPath, imagePath);
+        initializationDialog.destroyInitializationDialog();
     }
 
     //Component actions for prompt panel
@@ -187,14 +167,8 @@ public class InitializationController {
             } else {
                 imagePath = imageLocationPathField.getText() + "/";
             }
-            JSONObject settingJSON = createSettingsJSON(databasePath, imagePath);
 
-            try {
-                writeUserSettings(settingJSON);
-                initializationDialog.destroyInitializationDialog();
-            } catch (IOException exception) {
-                exception.printStackTrace();
-            }
+            settings.initializeSettingsJSON(databasePath, imagePath);
         }
     }
 

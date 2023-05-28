@@ -1,2 +1,4 @@
 *.db
 user_settings.json
+*.class
+.idea/

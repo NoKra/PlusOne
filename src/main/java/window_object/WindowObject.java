@@ -110,22 +110,22 @@ public class WindowObject {
         SpringLayout buttonLayout = new SpringLayout();
         navPanel.setLayout(buttonLayout);
 
-        JButton mainButton = new JButton("Main");
+        JButton homeButton = new JButton("Home");
         buttonLayout.putConstraint(
-                SpringLayout.WEST, mainButton, padding,
+                SpringLayout.WEST, homeButton, padding,
                 SpringLayout.WEST, navPanel
         );
         buttonLayout.putConstraint(
-                SpringLayout.NORTH, mainButton, padding,
+                SpringLayout.NORTH, homeButton, padding,
                 SpringLayout.NORTH, navPanel
         );
-        navPanel.add(mainButton);
+        navPanel.add(homeButton);
 
 
         JButton browseButton = new JButton("Browse");
         buttonLayout.putConstraint(
                 SpringLayout.WEST, browseButton, padding,
-                SpringLayout.EAST, mainButton
+                SpringLayout.EAST, homeButton
         );
         buttonLayout.putConstraint(
                 SpringLayout.NORTH, browseButton, padding,
@@ -170,10 +170,10 @@ public class WindowObject {
                 SpringLayout.SOUTH, navPanel
         );
 
-        mainButton.addActionListener(new ActionListener() {
+        homeButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                nav.toMain();
+                nav.toHome(false);
             }
         });
         browseButton.addActionListener(new ActionListener() {
@@ -297,7 +297,6 @@ public class WindowObject {
             public void actionPerformed(ActionEvent e) {
                 try {
                     database.purgeTable(targetTable);
-
                     confirmPurge.dispose();
                 } catch (SQLException exception) {
                     exception.printStackTrace();
@@ -322,6 +321,15 @@ public class WindowObject {
         container.repaint();
     }
 
+    public void setWindowSize(Dimension windowDimension) {
+        mainFrame.setMinimumSize(windowDimension);
+        mainFrame.setPreferredSize(windowDimension);
+        mainFrame.setSize(windowDimension);
+    }
+
+    public void centerWindow() {
+        mainFrame.setLocationRelativeTo(null);
+    }
 
     public void setWindowVisible() {
         mainFrame.setVisible(true);
@@ -332,6 +340,7 @@ public class WindowObject {
     }
 
     public void showNewContent() {
+        container.repaint();
         container.revalidate();
     }
 

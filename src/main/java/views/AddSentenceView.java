@@ -30,7 +30,7 @@ public class AddSentenceView {
     private boolean previousWasNsfwImage = false;
     private ImageIcon imagePaneIcon = null;
 
-    //Window Components
+    //Components
     private JPanel navPanel;
     private JPanel contentPanel;
     private SpringLayout contentPanelLayout;
@@ -69,7 +69,6 @@ public class AddSentenceView {
     public AddSentenceView(WindowObject mainWindow) {
         this.mainWindow = mainWindow;
         sentenceControl = createView();
-        mainWindow.getMainFrame().setLocationRelativeTo(null);
         JScrollBar contentVerticalBar = mainWindow.getContentScroll().getVerticalScrollBar();
         contentVerticalBar.addAdjustmentListener(new AdjustmentListener() {
             @Override

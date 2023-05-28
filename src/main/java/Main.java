@@ -23,7 +23,7 @@ public class Main {
                 @Override
                 public void run() {
                     WindowObject mainWindow = new WindowObject(database, true);
-                    mainWindow.getNav().toAddSentence();
+                    mainWindow.getNav().toHome(true);
                 }
             });
         } else {

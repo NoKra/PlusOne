@@ -19,7 +19,7 @@ public class InitializationDialog {
     private final Color problemColor = new Color( 244, 81, 30 );
 
     //Components
-    private JPanel promptPanel;
+    private final JPanel promptPanel;
     private final String emptyPathMessage = "Choose Location";
     private final JLabel welcomeLabel = new JLabel("Welcome to Plus One");
     private final JLabel savingInfoLabel = new JLabel("Plus One saves databases and uploaded images locally");
@@ -28,7 +28,7 @@ public class InitializationDialog {
     private final JButton customButton = new JButton("Custom");
     private final JLabel defaultLabel = new JLabel("(Application folder)");
     private final JLabel customLabel = new JLabel("(Choose folder)");
-    private JPanel customPanel;
+    private final JPanel customPanel;
     private final JLabel locationPrompt = new JLabel("Choose a location:");
     private final JButton databaseLocationButton = new JButton("Database");
     private final JTextField databaseLocationPathField = new JTextField(emptyPathMessage);

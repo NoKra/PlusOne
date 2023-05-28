@@ -339,7 +339,7 @@ public class Database {
         String sqlNsfw = sentence.getNsfwTag() ? "TRUE" : "FALSE";
         int sqlBacklink = sentence.getBacklink();
         String sqlCreatedAt = "'" + sentence.getCreatedAt() + "'";
-        String sqlUpdatedAt = "'" + createTimestamp() + "'";
+        String sqlUpdatedAt = "'" + createNowTimestampString() + "'";
 
         String sql = String.format("UPDATE SENTENCES SET " +
                         "SOURCE_TYPE = %s, " +
@@ -416,7 +416,7 @@ public class Database {
                 createdAt, updatedAt, sentenceImage);
     }
 
-    public static String createTimestamp() {
+    public static String createNowTimestampString() {
         String[] now = Instant.now().toString().split("[.T]");
         return now[0] + " " + now[1];
     }
@@ -447,6 +447,80 @@ public class Database {
         }
 
         return null;
+    }
+
+    public int findTotalImageCount() {
+        int imageCount = 0;
+        File generalImages = new File(String.valueOf(settingsJSON.get("GENERAL_IMAGES")));
+        File nsfwImages = new File(String.valueOf(settingsJSON.get("NSFW_IMAGES")));
+
+        imageCount += Objects.requireNonNull(generalImages.list()).length;
+        imageCount += Objects.requireNonNull(nsfwImages.list()).length;
+
+        return imageCount;
+    }
+
+    public int findTotalSourceCount() {
+        String sql = "SELECT COUNT(DISTINCT SOURCE_NAME) FROM SENTENCES";
+        int sourceCount = -1;
+        try {
+            ResultSet rs = dbConnection.createStatement().executeQuery(sql);
+            while(rs.next())
+            {
+                sourceCount = rs.getInt("COUNT(DISTINCT SOURCE_NAME)");
+            }
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+        }
+
+        return sourceCount;
+    }
+
+    //Finds the total number of entries in the last 24 hours
+    public int findTodayEntryCount() {
+        String[] now = Instant.now().minusSeconds(86400).toString().split("[.T]");
+        String formattedNow = String.format("%s %s", now[0], now[1]);
+
+        String sql = String.format(
+                "SELECT COUNT(*) FROM SENTENCES WHERE CREATED_AT >= PARSEDATETIME('%s', 'yyyy-MM-dd HH:mm:ss')",
+                formattedNow);
+        int todayCount = -1;
+        try {
+            ResultSet rs = dbConnection.createStatement().executeQuery(sql);
+            while(rs.next()) {
+                todayCount = rs.getInt("COUNT(*)");
+            }
+
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+        }
+
+        return todayCount;
+    }
+
+    //Finds the average number of entries per day, since the very first entry
+    public double findAverageEntriesPerDay() {
+
+        double entriesPerDay = -1.0;
+        String sql = "SELECT * FROM SENTENCES LIMIT 1";
+
+        try {
+            ResultSet rs = dbConnection.createStatement().executeQuery(sql);
+            Timestamp created;
+            Timestamp now = Timestamp.valueOf(Database.createNowTimestampString());
+            while(rs.next()) {
+                created = rs.getTimestamp("CREATED_AT");
+                long timeDifference = now.getTime() - created.getTime();
+                int days = (int)(timeDifference / (1000 * 60 * 60 * 24));
+                days = days > 0 ? days : 1;
+                entriesPerDay = (double)maxSentenceIndex / days;
+
+            }
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+        }
+
+        return entriesPerDay;
     }
 
     public void insertWord() throws SQLException {

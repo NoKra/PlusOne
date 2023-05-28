@@ -96,7 +96,7 @@ public class AddSentenceController {
                 imageId,
                 nsfwTag.isSelected(),
                 backlinkId,
-                Database.createTimestamp(),
+                Database.createNowTimestampString(),
                 null,
                 addSentenceView.getSentenceImage()
         );

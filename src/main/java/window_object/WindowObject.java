@@ -1,6 +1,7 @@
 package window_object;
 
 import database.Database;
+import settings.Settings;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,6 +12,7 @@ import java.sql.SQLException;
 
 public class WindowObject {
     private final Database database;
+    private final Settings settings;
     private final JFrame mainFrame = new JFrame();
     private final Container container = mainFrame.getContentPane();
     private final SpringLayout layout = new SpringLayout();
@@ -19,8 +21,9 @@ public class WindowObject {
     private JScrollPane contentScroll = null;
     private final int padding = 20;
 
-    public WindowObject(Database database, boolean isMain) {
+    public WindowObject(Database database, Settings settings, boolean isMain) {
         this.database = database;
+        this.settings = settings;
         if(isMain) {
             mainFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
             mainFrame.setJMenuBar(menuBar);
@@ -43,6 +46,8 @@ public class WindowObject {
     public Database getDatabase() {
         return database;
     }
+
+    public Settings getSettings() {return settings;}
 
     public Container getContainer() {
         return container;

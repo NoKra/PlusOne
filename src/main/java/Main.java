@@ -1,28 +1,24 @@
 import database.Database;
-import views.InitializationDialog;
+import settings.Settings;
 import window_object.WindowObject;
 
 import javax.swing.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.sql.SQLException;
 
 
 public class Main {
     private static Database database;
-    private final static Path settingsJsonPath = Paths.get( "./src/main/java/user_settings.json");
+    private static Settings settings;
 
     public static void main(String[] args) throws SQLException {
-        if(!Files.exists(settingsJsonPath)) {
-            new InitializationDialog();
-        }
-        if(Files.exists(settingsJsonPath)) {
-            database = startDatabase();
+        settings = new Settings();
+
+        if(settings.verifySettingsExists()) {
+            database = new Database(settings);
             SwingUtilities.invokeLater(new Runnable() {
                 @Override
                 public void run() {
-                    WindowObject mainWindow = new WindowObject(database, true);
+                    WindowObject mainWindow = new WindowObject(database, settings, true);
                     mainWindow.getNav().toHome(true);
                 }
             });
@@ -31,21 +27,5 @@ public class Main {
         }
     }
 
-    public static Database startDatabase() throws SQLException {
-        Database database = new Database();
 
-        //Ensures lock for H2 database is removed upon exiting
-        Runtime.getRuntime().addShutdownHook(new Thread(){
-            @Override
-            public void run() {
-                try {
-                    database.getDbConnection().close();
-                    System.out.println("Database connection closed");
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        });
-        return database;
-    }
 }

@@ -3,3 +3,4 @@ user_settings.json
 *.class
 .idea/
 build/
+.gradle

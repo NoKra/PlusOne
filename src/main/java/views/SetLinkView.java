@@ -56,7 +56,7 @@ public class SetLinkView {
 
     public SetLinkView(WindowObject mainWindow, AddSentenceController addSentenceController) {
         this.addSentenceController = addSentenceController;
-        setWindow = new WindowObject(mainWindow.getDatabase(), false);
+        setWindow = new WindowObject(mainWindow.getDatabase(), mainWindow.getSettings(), false);
         createView();
         setWindow.setWindowVisible();
         setWindow.getMainFrame().setLocationRelativeTo(null);

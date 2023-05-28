@@ -11,6 +11,16 @@ public class BrowseView {
     private final SpringLayout layout;
     private final int padding = 20;
 
+    //Components
+    private final JTextField searchTextField = new JTextField();
+    private final JTable resultTable = new JTable();
+    private final JComboBox<String> sourceTypeCombo = new JComboBox<>();
+    private final JTextField sourceNameField = new JTextField();
+    private final JTextField sourceUrlField = new JTextField();
+    private final JTextField sentenceField = new JTextField();
+
+
+
     public BrowseView(WindowObject mainWindow) {
         this.mainWindow = mainWindow;
         this.container = this.mainWindow.getContainer();

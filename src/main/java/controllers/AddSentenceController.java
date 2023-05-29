@@ -3,6 +3,7 @@ package controllers;
 import content_objects.SentenceObject;
 import database.Database;
 import org.json.simple.JSONObject;
+import settings.Settings;
 import views.AddSentenceView;
 
 import javax.swing.*;
@@ -13,6 +14,7 @@ import java.util.Objects;
 
 public class AddSentenceController {
     private final AddSentenceView addSentenceView;
+    private final Settings settings;
     private final Database database;
     private final JComboBox<String> sourceType;
     private final JTextArea sourceName;
@@ -21,7 +23,6 @@ public class AddSentenceController {
     private final JTextArea sentence;
     private final JCheckBox nsfwTag;
     private final JTextArea backLinkArea;
-    private final Color hasLinkColor;
     private final int notLinked = -1; //Value used to show sentence has no link, neither forward nor backwards
     private final int linkHead = -2; //Value used to show that this sentence is a head link (start of sentence chain)
     private int backlinkId;
@@ -29,8 +30,9 @@ public class AddSentenceController {
     private String imageId = null;
 
     //Instantiation
-    public AddSentenceController(AddSentenceView addSentenceView, Database database) {
+    public AddSentenceController(AddSentenceView addSentenceView, Database database, Settings settings) {
         this.addSentenceView = addSentenceView;
+        this.settings = settings;
         this.database = database;
         this.sourceType = addSentenceView.getSourceTypeCombo();
         this.sourceName = addSentenceView.getSourceNameArea();
@@ -39,7 +41,6 @@ public class AddSentenceController {
         this.sentence = addSentenceView.getSentenceArea();
         this.nsfwTag = addSentenceView.getNsfwCheck();
         this.backLinkArea = addSentenceView.getCurrentLinkArea();
-        this.hasLinkColor = addSentenceView.getHasLinkColor();
         backlinkId = notLinked;
 
     }
@@ -68,7 +69,7 @@ public class AddSentenceController {
         }
         this.backlinkId = linkSentence.getSentenceKey();
         this.backLinkArea.setText(linkSentence.getSentence());
-        this.backLinkArea.setForeground(hasLinkColor);
+        this.backLinkArea.setForeground(settings.pickColor(Settings.Colors.successGreen));
         addSentenceView.repaintAllFields();
     }
 

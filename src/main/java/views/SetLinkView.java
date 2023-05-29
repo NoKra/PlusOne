@@ -2,6 +2,7 @@ package views;
 
 import controllers.AddSentenceController;
 import controllers.SetLinkController;
+import settings.Settings;
 import window_object.WindowObject;
 
 import javax.swing.*;
@@ -14,11 +15,9 @@ import java.awt.*;
 import java.awt.event.*;
 
 public class SetLinkView {
-    private final AddSentenceController addSentenceController;
     private final WindowObject setWindow;
-    private final Font jpFont = new Font("Meiryo", Font.BOLD, 16);
-    private final Font uiFont = new Font("Meiryo UI", Font.BOLD, 14);
-    private final Font buttonFont = new Font("Verdana", Font.BOLD, 16);
+    private final AddSentenceController addSentenceController;
+    private final Settings settings;
     private final int padding = 20;
     private final int areaColumns = 45;
 
@@ -33,28 +32,29 @@ public class SetLinkView {
     private JPanel contentPanel;
     private SpringLayout contentPanelLayout;
     private JPanel searchPanel;
-    private JLabel searchLabel = new JLabel("Search: ");
-    private JTextField searchField = new JTextField();
+    private final JLabel searchLabel = new JLabel("Search: ");
+    private final JTextField searchField = new JTextField();
     private JPanel tablePanel;
-    private JTable sentenceTable = new JTable(linkTableModel);
-    private JScrollPane tableScroll = new JScrollPane(sentenceTable);
+    private final JTable sentenceTable = new JTable(linkTableModel);
+    private final JScrollPane tableScroll = new JScrollPane(sentenceTable);
     private JPanel selectedInfoPanel;
-    private JLabel idPretextLabel = new JLabel("Selected ID: ");
-    private JLabel idValueLabel = new JLabel("  ");
-    private JLabel typePretextLabel = new JLabel("Source Type: ");
-    private JLabel typeValueLabel = new JLabel("  ");
-    private JLabel namePretextLabel = new JLabel("Source Name: ");
-    private JLabel nameValueLabel = new JLabel("  ");
-    private JLabel urlPretextLabel = new JLabel("Source URL: ");
-    private JLabel urlValueLabel = new JLabel("  ");
-    private JLabel sentencePretextLabel = new JLabel("Sentence: ");
-    private JTextArea sentenceValueArea = new JTextArea("  ");
-    private JLabel linkPretextLabel = new JLabel("Backlink: ");
-    private JButton selectBacklinkButton = new JButton("Go to Link");
-    private JTextArea linkValueArea = new JTextArea("  ");
-    private JButton selectLinkButton = new JButton("Select");
+    private final JLabel idPretextLabel = new JLabel("Selected ID: ");
+    private final JLabel idValueLabel = new JLabel("  ");
+    private final JLabel typePretextLabel = new JLabel("Source Type: ");
+    private final JLabel typeValueLabel = new JLabel("  ");
+    private final JLabel namePretextLabel = new JLabel("Source Name: ");
+    private final JLabel nameValueLabel = new JLabel("  ");
+    private final JLabel urlPretextLabel = new JLabel("Source URL: ");
+    private final JLabel urlValueLabel = new JLabel("  ");
+    private final JLabel sentencePretextLabel = new JLabel("Sentence: ");
+    private final JTextArea sentenceValueArea = new JTextArea("  ");
+    private final JLabel linkPretextLabel = new JLabel("Backlink: ");
+    private final JButton selectBacklinkButton = new JButton("Go to Link");
+    private final JTextArea linkValueArea = new JTextArea("  ");
+    private final JButton selectLinkButton = new JButton("Select");
 
     public SetLinkView(WindowObject mainWindow, AddSentenceController addSentenceController) {
+        settings = mainWindow.getSettings();
         this.addSentenceController = addSentenceController;
         setWindow = new WindowObject(mainWindow.getDatabase(), mainWindow.getSettings(), false);
         createView();
@@ -175,8 +175,8 @@ public class SetLinkView {
         SpringLayout panelLayout = new SpringLayout();
         returnPanel.setLayout(panelLayout);
 
-        searchLabel.setFont(uiFont);
-        searchField.setFont(jpFont);
+        searchLabel.setFont(settings.pickFont(Settings.Fonts.uiFont));
+        searchField.setFont(settings.pickFont(Settings.Fonts.jpFont));
 
         searchField.setColumns(30);
         searchField.setMaximumSize(new Dimension());
@@ -227,7 +227,7 @@ public class SetLinkView {
         SpringLayout panelLayout = new SpringLayout();
         returnPanel.setLayout(panelLayout);
 
-        sentenceTable.setFont(jpFont);
+        sentenceTable.setFont(settings.pickFont(Settings.Fonts.jpFont));
 
 
         ListSelectionModel selectionModel = sentenceTable.getSelectionModel();
@@ -293,20 +293,20 @@ public class SetLinkView {
         SpringLayout panelLayout = new SpringLayout();
         returnPanel.setLayout(panelLayout);
 
-        idPretextLabel.setFont(uiFont);
-        idValueLabel.setFont(uiFont);
-        typePretextLabel.setFont(uiFont);
-        typeValueLabel.setFont(uiFont);
-        namePretextLabel.setFont(uiFont);
-        nameValueLabel.setFont(jpFont);
-        urlPretextLabel.setFont(uiFont);
-        urlValueLabel.setFont(uiFont);
-        sentencePretextLabel.setFont(uiFont);
-        sentenceValueArea.setFont(jpFont);
-        linkPretextLabel.setFont(uiFont);
-        selectBacklinkButton.setFont(buttonFont);
-        linkValueArea.setFont(jpFont);
-        selectLinkButton.setFont(buttonFont);
+        idPretextLabel.setFont(settings.pickFont(Settings.Fonts.uiFont));
+        idValueLabel.setFont(settings.pickFont(Settings.Fonts.uiFont));
+        typePretextLabel.setFont(settings.pickFont(Settings.Fonts.uiFont));
+        typeValueLabel.setFont(settings.pickFont(Settings.Fonts.uiFont));
+        namePretextLabel.setFont(settings.pickFont(Settings.Fonts.uiFont));
+        nameValueLabel.setFont(settings.pickFont(Settings.Fonts.jpFont));
+        urlPretextLabel.setFont(settings.pickFont(Settings.Fonts.uiFont));
+        urlValueLabel.setFont(settings.pickFont(Settings.Fonts.uiFont));
+        sentencePretextLabel.setFont(settings.pickFont(Settings.Fonts.uiFont));
+        sentenceValueArea.setFont(settings.pickFont(Settings.Fonts.jpFont));
+        linkPretextLabel.setFont(settings.pickFont(Settings.Fonts.uiFont));
+        selectBacklinkButton.setFont(settings.pickFont(Settings.Fonts.buttonFont));
+        linkValueArea.setFont(settings.pickFont(Settings.Fonts.jpFont));
+        selectLinkButton.setFont(settings.pickFont(Settings.Fonts.buttonFont));
 
         sentenceValueArea.setEditable(false);
         sentenceValueArea.setBackground(null);

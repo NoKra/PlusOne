@@ -7,7 +7,7 @@ import javax.swing.*;
 import java.awt.*;
 
 public class InitializationDialog {
-    private final InitializationController initializationController;
+    private final Settings settings;
     private final JDialog initializationDialog = new JDialog(
             null, "Initialization", Dialog.ModalityType.APPLICATION_MODAL);
     private final Container container = initializationDialog.getContentPane();
@@ -15,9 +15,6 @@ public class InitializationDialog {
     private final JPanel contentPanel = new JPanel();
     private final SpringLayout contentLayout = new SpringLayout();
     private int padding = 15;
-    private final Font uiFont = new Font("Meiryo UI", Font.BOLD, 14);
-    private final Font buttonFont = new Font("Verdana", Font.BOLD, 16);
-    private final Color problemColor = new Color( 244, 81, 30 );
 
     //Components
     private final JPanel promptPanel;
@@ -43,7 +40,8 @@ public class InitializationDialog {
 
     //Constructor
     public InitializationDialog(Settings inSettings) {
-        initializationController = new InitializationController(this, inSettings);
+        settings = inSettings;
+        new InitializationController(this, inSettings);
         container.setLayout(containerLayout);
         promptPanel = createPromptPanel();
         customPanel = createCustomPathPanel();
@@ -219,13 +217,13 @@ public class InitializationDialog {
 
     //Styles components within promptPanel
     private void setPromptPanelStyling() {
-        welcomeLabel.setFont(uiFont);
-        savingInfoLabel.setFont(uiFont);
-        savingChoiceLabel.setFont(uiFont);
-        defaultButton.setFont(buttonFont);
-        customButton.setFont(buttonFont);
-        defaultLabel.setFont(uiFont);
-        customLabel.setFont(uiFont);
+        welcomeLabel.setFont(settings.pickFont(Settings.Fonts.uiFont));
+        savingInfoLabel.setFont(settings.pickFont(Settings.Fonts.uiFont));
+        savingChoiceLabel.setFont(settings.pickFont(Settings.Fonts.uiFont));
+        defaultButton.setFont(settings.pickFont(Settings.Fonts.buttonFont));
+        customButton.setFont(settings.pickFont(Settings.Fonts.buttonFont));
+        defaultLabel.setFont(settings.pickFont(Settings.Fonts.uiFont));
+        customLabel.setFont(settings.pickFont(Settings.Fonts.uiFont));
     }
 
     //Sets customPanel within customPanel's container, relevant sizing/styling is applied
@@ -385,26 +383,24 @@ public class InitializationDialog {
         cancelButton.setPreferredSize(buttonDimension);
         confirmButton.setPreferredSize(buttonDimension);
 
+        locationPrompt.setFont(settings.pickFont(Settings.Fonts.uiFont));
 
-        locationPrompt.setFont(uiFont);
-
-        databaseLocationButton.setFont(buttonFont);
-        databaseLocationPathField.setFont(uiFont);
-        badDatabasePathLabel.setFont(uiFont);
-        badDatabasePathLabel.setForeground(problemColor);
+        databaseLocationButton.setFont(settings.pickFont(Settings.Fonts.buttonFont));
+        databaseLocationPathField.setFont(settings.pickFont(Settings.Fonts.uiFont));
+        badDatabasePathLabel.setFont(settings.pickFont(Settings.Fonts.uiFont));
+        badDatabasePathLabel.setForeground(settings.pickColor(Settings.Colors.problemRed));
         badDatabasePathLabel.setVisible(false);
 
+        sameSaveLocationCheck.setFont(settings.pickFont(Settings.Fonts.uiFont));
 
-        sameSaveLocationCheck.setFont(uiFont);
-
-        imageLocationButton.setFont(buttonFont);
-        imageLocationPathField.setFont(uiFont);
-        badImagePathLabel.setFont(uiFont);
-        badImagePathLabel.setForeground(problemColor);
+        imageLocationButton.setFont(settings.pickFont(Settings.Fonts.buttonFont));
+        imageLocationPathField.setFont(settings.pickFont(Settings.Fonts.uiFont));
+        badImagePathLabel.setFont(settings.pickFont(Settings.Fonts.uiFont));
+        badImagePathLabel.setForeground(settings.pickColor(Settings.Colors.problemRed));
         badImagePathLabel.setVisible(false);
 
-        cancelButton.setFont(buttonFont);
-        confirmButton.setFont(buttonFont);
+        cancelButton.setFont(settings.pickFont(Settings.Fonts.buttonFont));
+        confirmButton.setFont(settings.pickFont(Settings.Fonts.buttonFont));
     }
 
     //Toggles the visibility status of bad database path warning

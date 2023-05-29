@@ -17,7 +17,6 @@ import java.nio.file.Paths;
 public class InitializationController {
     private final InitializationDialog initializationDialog;
     private final Settings settings;
-    private final String defaultPath = "./src/main/resources/onePlusDatabase/";
 
     //Components
     private final JButton defaultButton;
@@ -51,8 +50,8 @@ public class InitializationController {
 
     //Creates user settings using default locations (local file)
     private void createDefaultUserSettings() {
-        String imagePath = defaultPath + "images/";
-        settings.initializeSettingsJSON(defaultPath, imagePath);
+        String imagePath = settings.getDefaultDatabaseLocation() + "images/";
+        settings.initializeSettingsJSON(settings.getDefaultDatabaseLocation(), imagePath);
         initializationDialog.destroyInitializationDialog();
     }
 

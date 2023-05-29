@@ -3,6 +3,7 @@ package views;
 
 import controllers.HomeController;
 import database.Database;
+import settings.Settings;
 import window_object.WindowObject;
 
 import javax.swing.*;
@@ -10,9 +11,9 @@ import java.awt.*;
 
 public class HomeView {
     private final WindowObject mainWindow;
+    private final Settings settings;
     private final HomeController homeController;
     private final int padding = 15;
-    private final Font uiFont = new Font("Meiryo UI", Font.BOLD, 14);
 
     //Components
     private final JPanel navPanel;
@@ -28,6 +29,7 @@ public class HomeView {
     //Constructor
     public HomeView(WindowObject mainWindow, boolean isStartup) {
         this.mainWindow = mainWindow;
+        settings = this.mainWindow.getSettings();
         navPanel = this.mainWindow.createNavPanel();
         contentPanel = this.mainWindow.createContentPanel(navPanel);
         contentPanelLayout = (SpringLayout) contentPanel.getLayout();
@@ -80,7 +82,6 @@ public class HomeView {
                 SpringLayout.EAST, statsPanel
         );
         contentPanel.add(statsPanel);
-        setStatsPanelStyling();
 
         mainWindow.packFrame();
 
@@ -147,15 +148,17 @@ public class HomeView {
                 SpringLayout.SOUTH, averageEntriesLabel
         );
 
+        setStatsPanelStyling();
+
         return returnPanel;
     }
 
     //Styles components within statsPanel
     private void setStatsPanelStyling() {
-        entryCountLabel.setFont(uiFont);
-        sourceCountLabel.setFont(uiFont);
-        imageCountLabel.setFont(uiFont);
-        todayEntryCountLabel.setFont(uiFont);
-        averageEntriesLabel.setFont(uiFont);
+        entryCountLabel.setFont(settings.pickFont(Settings.Fonts.uiFont));
+        sourceCountLabel.setFont(settings.pickFont(Settings.Fonts.uiFont));
+        imageCountLabel.setFont(settings.pickFont(Settings.Fonts.uiFont));
+        todayEntryCountLabel.setFont(settings.pickFont(Settings.Fonts.uiFont));
+        averageEntriesLabel.setFont(settings.pickFont(Settings.Fonts.uiFont));
     }
 }

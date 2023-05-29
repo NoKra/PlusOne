@@ -4,6 +4,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import views.InitializationDialog;
 
+import java.awt.*;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -11,14 +12,43 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+
+
 public class Settings {
 
+    //Setting object info
     private final String relativeAddress = "./src/main/java/settings/user_settings.json";
-    private final String defaultDatabaseName = "plusOneDatabase"; //default name upon creation, use settingJSON for actual name
-    private final String defaultDatabaseUser = "po"; //default user upon creation, use settingJSON for actual user
+    private final String defaultDatabaseLocation = "./src/main/resources/onePlusDatabase/";
+    private final String defaultDatabaseName = "plusOneDatabase"; //default file name upon creation, use settingJSON for actual name
+    private final String defaultDatabaseUser = "po"; //default username upon creation, use settingJSON for actual user
+
     private final String defaultDatabasePass = ""; //default password upon creation, use settingJSON for actual pass
     private final Path settingsJsonPath = Paths.get(relativeAddress);
     private JSONObject settingsJSON;
+
+    //Colors settings
+    private final Color backgroundGray = new Color(47, 47, 49);
+    private final Color successGreen = new Color(  156, 204, 101);
+    private final Color problemRed = new Color( 244, 81, 30);
+    private final Color selectedBlue = new Color(   33, 150, 243);
+
+    public enum Colors {
+        backgroundGray,
+        successGreen,
+        problemRed,
+        selectedBlue
+    }
+
+    //Font settings
+    private final Font uiFont = new Font("Meiryo UI", Font.BOLD, 14);
+    private final Font buttonFont = new Font("Verdana", Font.BOLD, 16);
+    private final Font jpFont = new Font("Meiryo", Font.BOLD, 16);
+
+    public enum Fonts {
+        uiFont,
+        buttonFont,
+        jpFont
+    }
 
     public Settings() {
         if(!verifySettingsExists()) {
@@ -54,6 +84,8 @@ public class Settings {
         return String.valueOf(settingsJSON.get("DATABASE_NAME"));
     }
 
+    public String getDefaultDatabaseLocation() {return defaultDatabaseLocation;}
+
     public String getDatabasePath() {
         return String.valueOf(settingsJSON.get("DATABASE_PATH"));
     }
@@ -68,6 +100,27 @@ public class Settings {
 
     public String getDatabaseBackupPath() {
         return settingsJSON.get("DATABASE_PATH") + "backup/";
+    }
+
+    //Allows selection of defined colors, default case is just for breakages
+    public Color pickColor(Colors selectedColor) {
+        switch(selectedColor) {
+            case backgroundGray -> {return backgroundGray;}
+            case successGreen -> {return successGreen;}
+            case problemRed -> {return problemRed;}
+            case selectedBlue -> {return selectedBlue;}
+            default -> {return Color.BLUE;}
+        }
+    }
+
+    //Allows selection of defined fonts, default case is just for breakages
+    public Font pickFont(Fonts selectedFont) {
+        switch (selectedFont) {
+            case uiFont -> {return  uiFont;}
+            case buttonFont -> {return buttonFont;}
+            case jpFont -> {return jpFont;}
+            default -> {return new Font("Symbol", Font.BOLD, 16);}
+        }
     }
 
     //Verifies that the settings json is present

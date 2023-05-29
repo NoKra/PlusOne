@@ -2,6 +2,7 @@ package views;
 
 
 import controllers.AddSentenceController;
+import settings.Settings;
 import window_object.WindowObject;
 
 import javax.swing.*;
@@ -15,16 +16,11 @@ import java.sql.SQLException;
 
 public class AddSentenceView {
     private final WindowObject mainWindow;
+    private final Settings settings;
     private final AddSentenceController sentenceControl;
     private SetLinkView setLinkView = null;
     private final int padding = 20;
     private final int areaColumns = 33;
-    private final Font jpFont = new Font("Meiryo", Font.BOLD, 16);
-    private final Font uiFont = new Font("Meiryo UI", Font.BOLD, 14);
-    private final Font buttonFont = new Font("Verdana", Font.BOLD, 16);
-    private final Color hasLinkColor = new Color(  156, 204, 101  );
-    private final Color problemColor = new Color( 244, 81, 30 );
-    private final Color selectedColor = new Color(   33, 150, 243   );
     private BufferedImage sentenceImage = null;
     private boolean isNewImage = false;
     private boolean previousWasNsfwImage = false;
@@ -68,6 +64,7 @@ public class AddSentenceView {
 
     public AddSentenceView(WindowObject mainWindow) {
         this.mainWindow = mainWindow;
+        settings = mainWindow.getSettings();
         sentenceControl = createView();
         JScrollBar contentVerticalBar = mainWindow.getContentScroll().getVerticalScrollBar();
         contentVerticalBar.addAdjustmentListener(new AdjustmentListener() {
@@ -97,7 +94,6 @@ public class AddSentenceView {
     public JTextArea getSentenceArea() { return sentenceArea; }
     public JCheckBox getNsfwCheck() { return nsfwCheck; }
     public JTextArea getCurrentLinkArea() { return currentLinkArea; }
-    public Color getHasLinkColor() { return hasLinkColor; }
     public BufferedImage getSentenceImage() { return sentenceImage; }
     public boolean isPreviousWasNsfwImage() { return previousWasNsfwImage; }
     public boolean isNewImage() { return isNewImage; }
@@ -203,7 +199,7 @@ public class AddSentenceView {
             }
         });
 
-        return new AddSentenceController(this, mainWindow.getDatabase());
+        return new AddSentenceController(this, mainWindow.getDatabase(), settings);
     }
 
     //Create panel that has source type options and gives checkbox for sequential sentence option
@@ -212,9 +208,9 @@ public class AddSentenceView {
         SpringLayout panelLayout = new SpringLayout();
         returnPanel.setLayout(panelLayout);
 
-        sourceTypeLabel.setFont(uiFont);
-        sourceTypeCombo.setFont(uiFont);
-        sequentialCheck.setFont(uiFont);
+        sourceTypeLabel.setFont(settings.pickFont(Settings.Fonts.uiFont));
+        sourceTypeCombo.setFont(settings.pickFont(Settings.Fonts.uiFont));
+        sequentialCheck.setFont(settings.pickFont(Settings.Fonts.uiFont));
 
         //Prevents the sourceTypeCombo from stretching vertically when window is resized
         sourceTypeCombo.setMaximumSize(new Dimension());
@@ -251,7 +247,7 @@ public class AddSentenceView {
                 else {
                     contentPanel.remove(backlinkPanel);
                     currentLinkArea.setText("No Link");
-                    currentLinkArea.setForeground(problemColor);
+                    currentLinkArea.setForeground(settings.pickColor(Settings.Colors.problemRed));
                     sentenceControl.removeBacklinkId();
 
                     contentPanelLayout.putConstraint(
@@ -330,12 +326,12 @@ public class AddSentenceView {
         SpringLayout panelLayout = new SpringLayout();
         returnPanel.setLayout(panelLayout);
 
-        linkStatusLabel.setFont(uiFont);
-        currentLinkArea.setFont(jpFont);
-        currentLinkArea.setForeground(problemColor);
-        setLinkButton.setFont(buttonFont);
-        viewLinkButton.setFont(buttonFont);
-        setHeadButton.setFont(buttonFont);
+        linkStatusLabel.setFont(settings.pickFont(Settings.Fonts.uiFont));
+        currentLinkArea.setFont(settings.pickFont(Settings.Fonts.jpFont));
+        currentLinkArea.setForeground(settings.pickColor(Settings.Colors.problemRed));
+        setLinkButton.setFont(settings.pickFont(Settings.Fonts.buttonFont));
+        viewLinkButton.setFont(settings.pickFont(Settings.Fonts.buttonFont));
+        setHeadButton.setFont(settings.pickFont(Settings.Fonts.buttonFont));
 
         currentLinkArea.setEditable(false);
         currentLinkArea.setBackground(null);
@@ -381,7 +377,7 @@ public class AddSentenceView {
             @Override
             public void actionPerformed(ActionEvent e) {
                 currentLinkArea.setText("Head");
-                currentLinkArea.setForeground(hasLinkColor);
+                currentLinkArea.setForeground(settings.pickColor(Settings.Colors.successGreen));
                 sentenceControl.setBackLinkHead();
             }
         });
@@ -455,10 +451,10 @@ public class AddSentenceView {
         SpringLayout panelLayout = new SpringLayout();
         returnPanel.setLayout(panelLayout);
 
-        sourceNameLabel.setFont(uiFont);
-        hasUrlCheck.setFont(uiFont);
-        sourceNameArea.setFont(jpFont);
-        nameMaxLimitLabel.setFont(uiFont);
+        sourceNameLabel.setFont(settings.pickFont(Settings.Fonts.uiFont));
+        hasUrlCheck.setFont(settings.pickFont(Settings.Fonts.uiFont));
+        sourceNameArea.setFont(settings.pickFont(Settings.Fonts.jpFont));
+        nameMaxLimitLabel.setFont(settings.pickFont(Settings.Fonts.uiFont));
 
         //Either adds or removes urlPanel from window, depending on checkbox status
         hasUrlCheck.addActionListener(new ActionListener() {
@@ -520,7 +516,8 @@ public class AddSentenceView {
         sourceNameArea.addFocusListener(new FocusListener() {
             @Override
             public void focusGained(FocusEvent e) {
-                sourceNameArea.setBorder(BorderFactory.createLineBorder(selectedColor, 2, true));
+                sourceNameArea.setBorder(BorderFactory.createLineBorder(
+                        settings.pickColor(Settings.Colors.selectedBlue), 2, true));
             }
 
             @Override
@@ -564,7 +561,7 @@ public class AddSentenceView {
             }
         });
 
-        nameMaxLimitLabel.setForeground(problemColor);
+        nameMaxLimitLabel.setForeground(settings.pickColor(Settings.Colors.problemRed));
         nameMaxLimitLabel.setVisible(false);
 
         panelLayout.putConstraint(
@@ -625,8 +622,8 @@ public class AddSentenceView {
         SpringLayout panelLayout = new SpringLayout();
         returnPanel.setLayout(panelLayout);
 
-        sourceUrlLabel.setFont(uiFont);
-        sourceUrlArea.setFont(jpFont);
+        sourceUrlLabel.setFont(settings.pickFont(Settings.Fonts.uiFont));
+        sourceUrlArea.setFont(settings.pickFont(Settings.Fonts.jpFont));
 
         sourceUrlArea.setWrapStyleWord(false);
         sourceUrlArea.setLineWrap(true);
@@ -638,7 +635,8 @@ public class AddSentenceView {
         sourceUrlArea.addFocusListener(new FocusListener() {
             @Override
             public void focusGained(FocusEvent e) {
-                sourceUrlArea.setBorder(BorderFactory.createLineBorder(selectedColor, 2, true));
+                sourceUrlArea.setBorder(BorderFactory.createLineBorder(
+                        settings.pickColor(Settings.Colors.selectedBlue), 2, true));
             }
 
             @Override
@@ -714,9 +712,9 @@ public class AddSentenceView {
         SpringLayout panelLayout = new SpringLayout();
         returnPanel.setLayout(panelLayout);
 
-        sentenceLabel.setFont(uiFont);
-        sentenceArea.setFont(jpFont);
-        sentenceRequiredLabel.setFont(uiFont);
+        sentenceLabel.setFont(settings.pickFont(Settings.Fonts.uiFont));
+        sentenceArea.setFont(settings.pickFont(Settings.Fonts.jpFont));
+        sentenceRequiredLabel.setFont(settings.pickFont(Settings.Fonts.uiFont));
 
         sentenceArea.setWrapStyleWord(false);
         sentenceArea.setLineWrap(true);
@@ -728,7 +726,8 @@ public class AddSentenceView {
         sentenceArea.addFocusListener(new FocusListener() {
             @Override
             public void focusGained(FocusEvent e) {
-                sentenceArea.setBorder(BorderFactory.createLineBorder(selectedColor, 2, true));
+                sentenceArea.setBorder(BorderFactory.createLineBorder(
+                        settings.pickColor(Settings.Colors.selectedBlue), 2, true));
 
             }
 
@@ -767,7 +766,7 @@ public class AddSentenceView {
             }
         });
 
-        sentenceRequiredLabel.setForeground(problemColor);
+        sentenceRequiredLabel.setForeground(settings.pickColor(Settings.Colors.problemRed));
         sentenceRequiredLabel.setVisible(false);
 
         panelLayout.putConstraint(
@@ -818,17 +817,18 @@ public class AddSentenceView {
         SpringLayout panelLayout = new SpringLayout();
         returnPanel.setLayout(panelLayout);
 
-        imageLabel.setFont(uiFont);
-        nsfwCheck.setFont(uiFont);
-        addButton.setFont(buttonFont);
-        imagePane.setFont(jpFont);
+        imageLabel.setFont(settings.pickFont(Settings.Fonts.uiFont));
+        nsfwCheck.setFont(settings.pickFont(Settings.Fonts.uiFont));
+        addButton.setFont(settings.pickFont(Settings.Fonts.buttonFont));
+        imagePane.setFont(settings.pickFont(Settings.Fonts.jpFont));
 
         imagePane.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2, true));
         imagePane.setText("");
         imagePane.addFocusListener(new FocusListener() {
             @Override
             public void focusGained(FocusEvent e) {
-                imagePane.setBorder(BorderFactory.createLineBorder( selectedColor, 2, true));
+                imagePane.setBorder(BorderFactory.createLineBorder(
+                        settings.pickColor(Settings.Colors.selectedBlue), 2, true));
             }
 
             @Override
@@ -1190,11 +1190,5 @@ public class AddSentenceView {
 
 
 
-    private void checkFonts() {
-        String[] fonts = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
 
-        for(String font : fonts) {
-            System.out.println(font);
-        }
-    }
 }

@@ -17,6 +17,7 @@ public class BrowseView {
     //Components
     private final JPanel searchPanel;
     private final JLabel searchLabel = new JLabel("Search");
+
     private final JTextField searchTextField = new JTextField();
     private final JTable resultTable = new JTable();
     private final JComboBox<String> sourceTypeCombo = new JComboBox<>();

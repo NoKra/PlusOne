@@ -21,6 +21,7 @@ public class Settings {
     private final String defaultDatabaseLocation = "./src/main/resources/onePlusDatabase/";
     private final String defaultDatabaseName = "plusOneDatabase"; //default file name upon creation, use settingJSON for actual name
     private final String defaultDatabaseUser = "po"; //default username upon creation, use settingJSON for actual user
+
     private final String defaultDatabasePass = ""; //default password upon creation, use settingJSON for actual pass
     private final Path settingsJsonPath = Paths.get(relativeAddress);
     private JSONObject settingsJSON;

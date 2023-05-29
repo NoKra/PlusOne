@@ -42,6 +42,7 @@ public class InitializationDialog {
     public InitializationDialog(Settings inSettings) {
         settings = inSettings;
         new InitializationController(this, inSettings);
+
         container.setLayout(containerLayout);
         promptPanel = createPromptPanel();
         customPanel = createCustomPathPanel();

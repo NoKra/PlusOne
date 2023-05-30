@@ -26,7 +26,7 @@ public class SetLinkController {
     public SetLinkController(Database database, SetLinkView linkView) {
         this.database = database;
         this.tableModel = linkView.getLinkTableModel();
-        this.sentenceTable = linkView.getSentenceTable();
+        this.sentenceTable = linkView.getSearchTable();
         this.idLabel = linkView.getIdValueLabel();
         this.typeLabel = linkView.getTypeValueLabel();
         this.nameLabel = linkView.getNameValueLabel();

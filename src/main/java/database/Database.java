@@ -8,6 +8,8 @@ import settings.Settings;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -17,7 +19,6 @@ import java.util.*;
 import java.util.List;
 
 
-
 public class Database {
     private final Settings settings;
     private Connection dbConnection;
@@ -25,14 +26,15 @@ public class Database {
     private int maxSentenceIndex;
     private int maxWordIndex;
     private int maxOccurrenceIndex;
-    private final String tableJsonPath = "./src/main/java/database/database.json";
+    private final String resourceAddress = "json/database.json";
     private JSONObject tableJSON;
 
 
     public Database(Settings settings) throws  SQLException {
+
         this.settings = settings;
         try {
-            tableJSON = (JSONObject) new JSONParser().parse(new FileReader(tableJsonPath));
+            tableJSON = (JSONObject) new JSONParser().parse( new InputStreamReader(getDatabaseJsonStream()));
         } catch (Exception e) {
             e.printStackTrace();
             return;
@@ -70,6 +72,18 @@ public class Database {
         return tableJSON;
     }
     public int getMaxSentenceIndex() { return maxSentenceIndex; }
+
+    //Loads database.json from resources as an InputStream
+    private InputStream getDatabaseJsonStream() {
+        ClassLoader classLoader = getClass().getClassLoader();
+        InputStream inputStream = classLoader.getResourceAsStream(resourceAddress);
+
+        if(inputStream == null) {
+            throw new IllegalArgumentException("file not found" + resourceAddress);
+        } else {
+            return inputStream;
+        }
+    }
 
     //Verifies the database/backup/images directories are present, creates if not
     private void verifySubDirectories() throws IOException {

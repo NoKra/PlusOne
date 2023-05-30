@@ -1,5 +1,6 @@
 package settings;
 
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import views.InitializationDialog;
@@ -11,21 +12,26 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
+import java.util.Arrays;
 
 
 public class Settings {
 
-    //Setting object info
-    private final String relativeAddress = "./src/main/java/settings/user_settings.json";
-    private final String defaultDatabaseLocation = "./src/main/resources/onePlusDatabase/";
+    //Setting file info
+    private final String relativeAddress = "./user_settings.json";
+    private final Path settingsJsonPath = Paths.get(relativeAddress);
+    private JSONObject settingsJSON; //Anything potentially user defined should go here
+
+    //Database defaults
+    private final String defaultDatabaseLocation = "./database/";
     private final String defaultDatabaseName = "plusOneDatabase"; //default file name upon creation, use settingJSON for actual name
     private final String defaultDatabaseUser = "po"; //default username upon creation, use settingJSON for actual user
     private final String defaultDatabasePass = ""; //default password upon creation, use settingJSON for actual pass
-    private final Path settingsJsonPath = Paths.get(relativeAddress);
-    private JSONObject settingsJSON;
 
-    //Colors settings
+    //Stored Settings
+    private final String[] defaultSourceTypes = {"Visual Novel", "Manga", "Anime", "Online", "Newspaper", "Magazine"};
+
+    //Defined colors
     private final Color backgroundGray = new Color(47, 47, 49);
     private final Color successGreen = new Color(  156, 204, 101);
     private final Color problemRed = new Color( 244, 81, 30);
@@ -38,7 +44,7 @@ public class Settings {
         selectedBlue
     }
 
-    //Font settings
+    //Defined fonts
     private final Font uiFont = new Font("Meiryo UI", Font.BOLD, 14);
     private final Font buttonFont = new Font("Verdana", Font.BOLD, 16);
     private final Font jpFont = new Font("Meiryo", Font.BOLD, 16);
@@ -50,11 +56,11 @@ public class Settings {
     }
 
     public Settings() {
-        if(!verifySettingsExists()) {
+        if(!verifySettingsJsonExists()) {
             new InitializationDialog(this);
         }
 
-        if(verifySettingsExists()) {
+        if(verifySettingsJsonExists()) {
             try {
                 settingsJSON = (JSONObject) new JSONParser().parse(new FileReader(relativeAddress));
             } catch (Exception exception) {
@@ -101,6 +107,15 @@ public class Settings {
         return settingsJSON.get("DATABASE_PATH") + "backup/";
     }
 
+    public String[] getSourceTypes() {
+        JSONArray jsonArray =  (JSONArray) settingsJSON.get("SOURCE_TYPES");
+        String[] returnArray = new String[jsonArray.size()];
+        for(int i = 0; i < jsonArray.size(); i++) {
+            returnArray[i] = jsonArray.get(i).toString();
+        }
+        return returnArray;
+    }
+
     //Allows selection of defined colors, default case is just for breakages
     public Color pickColor(Colors selectedColor) {
         switch(selectedColor) {
@@ -123,7 +138,7 @@ public class Settings {
     }
 
     //Verifies that the settings json is present
-    public boolean verifySettingsExists() {
+    public boolean verifySettingsJsonExists() {
         return Files.exists(settingsJsonPath);
     }
 
@@ -132,6 +147,7 @@ public class Settings {
         JSONObject newSettingsJSON = createSettingsJSON(databasePath, imagePath);
         try{
             writeSettingsToFile(newSettingsJSON);
+            System.out.println("Settings JSON created");
         } catch (IOException exception) {
             exception.printStackTrace();
         }
@@ -140,6 +156,9 @@ public class Settings {
     //Creates settings JSON object with database path and image paths
     @SuppressWarnings("unchecked")
     private JSONObject createSettingsJSON(String databasePath, String imagePath) {
+        JSONArray sourceTypeArray = new JSONArray();
+        sourceTypeArray.addAll(Arrays.asList(defaultSourceTypes));
+
         JSONObject settingJSON = new JSONObject();
         settingJSON.put("DATABASE_NAME", defaultDatabaseName);
         settingJSON.put("DATABASE_USER", defaultDatabaseUser);
@@ -148,6 +167,7 @@ public class Settings {
         settingJSON.put("IMAGE_PATH", imagePath);
         settingJSON.put("GENERAL_IMAGES", imagePath + "general/");
         settingJSON.put("NSFW_IMAGES", imagePath + "nsfw/");
+        settingJSON.put("SOURCE_TYPES", sourceTypeArray);
         return settingJSON;
     }
 

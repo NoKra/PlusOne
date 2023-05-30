@@ -32,8 +32,8 @@ public class AddSentenceView {
     private SpringLayout contentPanelLayout;
     private JPanel sourceTypePanel;
     private final JLabel sourceTypeLabel = new JLabel("Source Type: ");
-    private final String[] sourcesList = {"Visual Novel", "Manga", "Anime", "Online", "Newspaper", "Magazine"};
-    private final JComboBox<String> sourceTypeCombo = new JComboBox<>(sourcesList);
+    //private final String[] sourcesList = {"Visual Novel", "Manga", "Anime", "Online", "Newspaper", "Magazine"};
+    private final JComboBox<String> sourceTypeCombo;
     private final JCheckBox sequentialCheck = new JCheckBox("Is Sequential");
     private JPanel backlinkPanel;
     private final JLabel linkStatusLabel = new JLabel("Back Link: ");
@@ -65,6 +65,7 @@ public class AddSentenceView {
     public AddSentenceView(WindowObject mainWindow) {
         this.mainWindow = mainWindow;
         settings = mainWindow.getSettings();
+        sourceTypeCombo = new JComboBox<>(settings.getSourceTypes());
         sentenceControl = createView();
         JScrollBar contentVerticalBar = mainWindow.getContentScroll().getVerticalScrollBar();
         contentVerticalBar.addAdjustmentListener(new AdjustmentListener() {
@@ -75,14 +76,7 @@ public class AddSentenceView {
             }
         });
 
-        /*
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                new SetLinkView(mainWindow, sentenceControl);
-            }
-        });
-        */
+
     }
 
     //For passing to AddSentenceControl
@@ -211,6 +205,7 @@ public class AddSentenceView {
         sourceTypeLabel.setFont(settings.pickFont(Settings.Fonts.uiFont));
         sourceTypeCombo.setFont(settings.pickFont(Settings.Fonts.uiFont));
         sequentialCheck.setFont(settings.pickFont(Settings.Fonts.uiFont));
+
 
         //Prevents the sourceTypeCombo from stretching vertically when window is resized
         sourceTypeCombo.setMaximumSize(new Dimension());

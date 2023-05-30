@@ -26,6 +26,7 @@ public class Settings {
     private final String defaultDatabaseLocation = "./database/";
     private final String defaultDatabaseName = "plusOneDatabase"; //default file name upon creation, use settingJSON for actual name
     private final String defaultDatabaseUser = "po"; //default username upon creation, use settingJSON for actual user
+
     private final String defaultDatabasePass = ""; //default password upon creation, use settingJSON for actual pass
 
     //Stored Settings

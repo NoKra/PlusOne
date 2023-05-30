@@ -168,6 +168,7 @@ public class InitializationController {
             }
 
             settings.initializeSettingsJSON(databasePath, imagePath);
+            initializationDialog.destroyInitializationDialog();
         }
     }
 

@@ -1,0 +1,90 @@
+{
+  "SENTENCES": {
+    "SENTENCE_KEY": {
+      "TYPE": "INT",
+      "OPTION": ["AUTO_INCREMENT", "PRIMARY KEY"]
+    },
+    "SOURCE_TYPE": {
+      "TYPE": "VARCHAR",
+      "SIZE": 31
+    },
+    "SOURCE_NAME": {
+      "TYPE": "VARCHAR",
+      "SIZE": 511
+    },
+    "SOURCE_URL": {
+      "TYPE": "VARCHAR",
+      "SIZE": 511
+    },
+    "SENTENCE": {
+      "TYPE": "VARCHAR",
+      "SIZE": 1023,
+      "OPTION": ["NOT NULL"]
+    },
+    "IMAGE_PATH": {
+      "TYPE": "INT"
+    },
+    "NSFW": {
+      "TYPE": "BOOL"
+    },
+    "BACK_LINK": {
+      "TYPE": "INT"
+    },
+    "CREATED_AT": {
+      "TYPE": "TIMESTAMP"
+    },
+    "UPDATED_AT": {
+      "TYPE": "TIMESTAMP"
+    }
+  },
+
+  "WORDS": {
+    "WORD_KEY": {
+      "TYPE": "INT",
+      "OPTION": ["PRIMARY KEY"]
+    },
+    "KANJI": {
+      "TYPE": "VARCHAR",
+      "SIZE": 63
+    },
+    "KANA": {
+      "TYPE": "VARCHAR",
+      "SIZE": 127
+    },
+    "PART_OF_SPEECH": {
+      "TYPE": "VARCHAR",
+      "SIZE": 31
+    },
+    "ENGLISH_DEF": {
+      "TYPE": "VARCHAR",
+      "SIZE": 511
+    },
+    "JAPANESE_DEF": {
+      "TYPE": "VARCHAR",
+      "SIZE": 511
+    },
+    "TAGS": {
+      "TYPE": "VARCHAR",
+      "SIZE": 63
+    },
+    "LOWEST_PLUS_VAL": {
+      "TYPE": "INT"
+    },
+    "FREQUENCY": {
+      "TYPE": "INT"
+    }
+  },
+
+  "OCCURRENCES": {
+    "OCCURRENCE_KEY": {
+      "TYPE": "INT"
+    },
+    "SENTENCE_KEY": {
+      "TYPE": "INT"
+    },
+    "WORD_KEY": {
+      "TYPE": "INT"
+    }
+
+  }
+}

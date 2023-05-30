@@ -35,8 +35,9 @@ public class SetLinkView {
     private final JLabel searchLabel = new JLabel("Search: ");
     private final JTextField searchField = new JTextField();
     private JPanel tablePanel;
-    private final JTable sentenceTable = new JTable(linkTableModel);
-    private final JScrollPane tableScroll = new JScrollPane(sentenceTable);
+    private final JTable searchTable = new JTable(linkTableModel);
+    private final JScrollPane tableScroll = new JScrollPane(searchTable);
+
     private JPanel selectedInfoPanel;
     private final JLabel idPretextLabel = new JLabel("Selected ID: ");
     private final JLabel idValueLabel = new JLabel("  ");
@@ -62,7 +63,7 @@ public class SetLinkView {
         setWindow.getMainFrame().setLocationRelativeTo(null);
         linkController = new SetLinkController(mainWindow.getDatabase(), this);
         if(linkController.getMaxSentences() > 0) {
-            sentenceTable.setRowSelectionInterval(0, 0);
+            searchTable.setRowSelectionInterval(0, 0);
         } else {
             selectLinkButton.setEnabled(false);
         }
@@ -72,7 +73,7 @@ public class SetLinkView {
     public DefaultTableModel getLinkTableModel() {
         return linkTableModel;
     }
-    public JTable getSentenceTable() {return sentenceTable;}
+    public JTable getSearchTable() {return searchTable;}
     public JLabel getIdValueLabel() {return idValueLabel;}
     public JLabel getTypeValueLabel() {return typeValueLabel;}
     public JLabel getNameValueLabel() {return nameValueLabel;}
@@ -227,13 +228,14 @@ public class SetLinkView {
         SpringLayout panelLayout = new SpringLayout();
         returnPanel.setLayout(panelLayout);
 
-        sentenceTable.setFont(settings.pickFont(Settings.Fonts.jpFont));
+        searchTable.setFont(settings.pickFont(Settings.Fonts.jpFont));
 
 
-        ListSelectionModel selectionModel = sentenceTable.getSelectionModel();
+
+        ListSelectionModel selectionModel = searchTable.getSelectionModel();
         selectionModel.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        sentenceTable.getTableHeader().setReorderingAllowed(false);
-        sentenceTable.setDefaultRenderer(Object.class, new NoBorderRenderer());
+        searchTable.getTableHeader().setReorderingAllowed(false);
+        searchTable.setDefaultRenderer(Object.class, new NoBorderRenderer());
         selectionModel.addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
@@ -494,6 +496,7 @@ public class SetLinkView {
     }
 
 
+    //Removes borders from individual cells in table when table row is selected
     private static class NoBorderRenderer extends DefaultTableCellRenderer implements TableCellRenderer {
         @Override
         public Component getTableCellRendererComponent(
@@ -505,16 +508,16 @@ public class SetLinkView {
     }
 
     private void sizeTable() {
-        int tableWidth = sentenceTable.getWidth();
-        for(int i = 0; i < sentenceTable.getColumnCount(); i++) {
-            sentenceTable.getColumnModel().getColumn(i).setMaxWidth(tableWidth);
-            sentenceTable.getColumnModel().getColumn(i).setMinWidth(tableWidth / 100);
+        int tableWidth = searchTable.getWidth();
+        for(int i = 0; i < searchTable.getColumnCount(); i++) {
+            searchTable.getColumnModel().getColumn(i).setMaxWidth(tableWidth);
+            searchTable.getColumnModel().getColumn(i).setMinWidth(tableWidth / 100);
         }
-        sentenceTable.getColumnModel().getColumn(0).setPreferredWidth(tableWidth / 15);
-        sentenceTable.getColumnModel().getColumn(1).setPreferredWidth(tableWidth / 10);
-        sentenceTable.getColumnModel().getColumn(2).setPreferredWidth(tableWidth / 2);
-        sentenceTable.getColumnModel().getColumn(3).setPreferredWidth(tableWidth / 10);
-        sentenceTable.getColumnModel().getColumn(4).setPreferredWidth(tableWidth);
-        sentenceTable.getColumnModel().getColumn(5).setPreferredWidth(tableWidth / 15);
+        searchTable.getColumnModel().getColumn(0).setPreferredWidth(tableWidth / 15);
+        searchTable.getColumnModel().getColumn(1).setPreferredWidth(tableWidth / 10);
+        searchTable.getColumnModel().getColumn(2).setPreferredWidth(tableWidth / 2);
+        searchTable.getColumnModel().getColumn(3).setPreferredWidth(tableWidth / 10);
+        searchTable.getColumnModel().getColumn(4).setPreferredWidth(tableWidth);
+        searchTable.getColumnModel().getColumn(5).setPreferredWidth(tableWidth / 15);
     }
 }

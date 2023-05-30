@@ -14,7 +14,7 @@ public class Main {
     public static void main(String[] args) throws SQLException {
         settings = new Settings();
 
-        if(settings.verifySettingsExists()) {
+        if(settings.verifySettingsJsonExists()) {
             database = new Database(settings);
             SwingUtilities.invokeLater(new Runnable() {
                 @Override

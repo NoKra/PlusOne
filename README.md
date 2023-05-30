@@ -114,3 +114,4 @@ When first starting Plus One, the user will need to choose where the database an
 
 ![](https://github.com/NoKra/PlusOne/blob/master/src/main/resources/readme/images/initialization_root.PNG)
 
+

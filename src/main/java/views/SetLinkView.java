@@ -37,6 +37,7 @@ public class SetLinkView {
     private JPanel tablePanel;
     private final JTable searchTable = new JTable(linkTableModel);
     private final JScrollPane tableScroll = new JScrollPane(searchTable);
+
     private JPanel selectedInfoPanel;
     private final JLabel idPretextLabel = new JLabel("Selected ID: ");
     private final JLabel idValueLabel = new JLabel("  ");
@@ -228,6 +229,7 @@ public class SetLinkView {
         returnPanel.setLayout(panelLayout);
 
         searchTable.setFont(settings.pickFont(Settings.Fonts.jpFont));
+
 
 
         ListSelectionModel selectionModel = searchTable.getSelectionModel();

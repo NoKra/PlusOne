@@ -15,6 +15,8 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 
 
+
+
 public class Settings {
 
     //Setting file info
@@ -46,6 +48,30 @@ public class Settings {
     }
 
     //Defined fonts
+    private final Font uiFont = new Font("Meiryo UI", Font.BOLD, 14);
+    private final Font buttonFont = new Font("Verdana", Font.BOLD, 16);
+    private final Font jpFont = new Font("Meiryo", Font.BOLD, 16);
+
+    public enum Fonts {
+        uiFont,
+        buttonFont,
+        jpFont
+    }
+
+    //Colors settings
+    private final Color backgroundGray = new Color(47, 47, 49);
+    private final Color successGreen = new Color(  156, 204, 101);
+    private final Color problemRed = new Color( 244, 81, 30);
+    private final Color selectedBlue = new Color(   33, 150, 243);
+
+    public enum Colors {
+        backgroundGray,
+        successGreen,
+        problemRed,
+        selectedBlue
+    }
+
+    //Font settings
     private final Font uiFont = new Font("Meiryo UI", Font.BOLD, 14);
     private final Font buttonFont = new Font("Verdana", Font.BOLD, 16);
     private final Font jpFont = new Font("Meiryo", Font.BOLD, 16);

@@ -54,6 +54,7 @@ public class BrowseView {
         searchPanel = createSearchPanel();
         editPanel = createEditPanel();
 
+
         createView();
         setSearchPanelStyling(searchPanel);
         setEditPanelStyling(editPanel);
@@ -84,6 +85,7 @@ public class BrowseView {
         contentLayout.putConstraint(
                 SpringLayout.NORTH, searchPanel, generalPadding,
                 SpringLayout.SOUTH, topPanel
+
         );
         contentPanel.add(searchPanel);
 
@@ -321,5 +323,52 @@ public class BrowseView {
         sentenceArea.setMaximumSize(new Dimension());
 
     }
+
+    public JPanel createSearchPanel() {
+        JPanel returnPanel = new JPanel();
+        SpringLayout panelLayout = new SpringLayout();
+        returnPanel.setLayout(panelLayout);
+
+        panelLayout.putConstraint(
+                SpringLayout.NORTH, searchLabel, padding,
+                SpringLayout.NORTH, returnPanel
+        );
+        panelLayout.putConstraint(
+                SpringLayout.WEST, searchLabel, padding,
+                SpringLayout.WEST, returnPanel
+        );
+        returnPanel.add(searchLabel);
+
+        panelLayout.putConstraint(
+                SpringLayout.WEST, searchTextField, padding,
+                SpringLayout.WEST, returnPanel
+        );
+        panelLayout.putConstraint(
+                SpringLayout.NORTH, searchTextField, 0,
+                SpringLayout.SOUTH, searchLabel
+        );
+        returnPanel.add(searchTextField);
+
+        panelLayout.putConstraint(
+                SpringLayout.EAST, returnPanel, padding,
+                SpringLayout.EAST, searchTextField
+        );
+
+        panelLayout.putConstraint(
+                SpringLayout.SOUTH, returnPanel, padding,
+                SpringLayout.SOUTH, searchTextField
+        );
+
+        setSearchPanelStyling(returnPanel);
+
+        return returnPanel;
+    }
+
+    public void setSearchPanelStyling(JPanel panel) {
+        panel.setBackground(backgroundGray);
+        searchTextField.setFont(uiFont);
+        searchTextField.setColumns(30);
+    }
+
 
 }

@@ -206,7 +206,6 @@ public class AddSentenceView {
         sourceTypeCombo.setFont(settings.pickFont(Settings.Fonts.uiFont));
         sequentialCheck.setFont(settings.pickFont(Settings.Fonts.uiFont));
 
-
         //Prevents the sourceTypeCombo from stretching vertically when window is resized
         sourceTypeCombo.setMaximumSize(new Dimension());
         sourceTypeCombo.setSelectedIndex(0);

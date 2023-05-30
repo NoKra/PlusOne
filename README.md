@@ -114,3 +114,4 @@ When first starting Plus One, the user will need to choose where the database an
 
 ![First initialization screen giving default and custom options for saving database and images](\src\main\resources\readme\images\initialization_root.PNG "Plus One Initialization Root")
 
+

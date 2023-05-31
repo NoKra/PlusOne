@@ -10,6 +10,23 @@ adding one new piece of information at a time.
 <br>More can be read here: 
 [Wikipedia](https://en.wikipedia.org/wiki/Input_hypothesis))
 
+## Table of Contents
+1. [Description](#description)
+   1. [Current State](#current-state)
+   2. [Future State](#future-state)
+   3. [Future Features](#future-features)
+   4. [Technology](#technology)
+2. [Running](#running)
+   1. [Run From JAR File](#run-from-jar-file)
+   2. [Run from IDE](#run-from-ide)
+3. [How To Use](#how-to-use)
+   1. [Initial Startup](#initial-startup)
+   2. [Home](#home)
+   3. [Add](#add)
+   4. [Set Link](#set-link)
+   5. [Browse](#browse)
+4. [License](#license)
+
 # Description
 ### Current State
 In Plus One's current state, the application acts as a
@@ -198,3 +215,5 @@ Currently, the browse page is mostly inoperable, but the user will be able to fr
 sentences and edit those sentences
 
 
+### License
+See [license](license.txt) for information about use (GNU GPL v3.0)

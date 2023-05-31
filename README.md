@@ -68,6 +68,8 @@ sentence.
 #### Short Term
 - Ability to browse and edit stored sentences
 - Ability to batch add sentences from a larger block of text
+- Adding support for file based images
+- Adding modifiers for search (e.g. only search source names, or only searching URLs etc.)
 
 #### Long Term
 - Implementation of SRS studying
@@ -109,9 +111,90 @@ directory
 
 # How To Use
 
+(Note: current layout may not currently reflect images provided, but general operations should remain the same. Will
+update images after major revisions)
+
 ### Initial Startup
 When first starting Plus One, the user will need to choose where the database and image files will be saved
 
-![](https://github.com/NoKra/PlusOne/blob/master/src/main/resources/readme/images/initialization_root.PNG)
+![Root initialization page](https://github.com/NoKra/PlusOne/blob/master/src/main/resources/readme/images/initialization_root.PNG)
+
+- Default will create database folder in local folder (contains db file and image folder)
+- Custom will bring up dialog for choosing where to save database and image files
+
+![Custom initialization page](https://github.com/NoKra/PlusOne/blob/master/src/main/resources/readme/images/initialization_custom.PNG)
+
+Database and Image save location can be chosen independently, or by checking "Database and images same location?", 
+both can be saved in the same location
+
+### Home
+
+Temporary home page that displays basic stats about the user's repository, navigation bar lets the user navigate
+between pages
+
+![Home screen](https://github.com/NoKra/PlusOne/blob/master/src/main/resources/readme/images/home.PNG)
+
+### Add
+
+The Add screen lets the user input sentences into their repository
+- Source Type: The type of source that the sentence is from
+- Source Name: The name/title of the source
+- Sentence: The sentence itself
+- Image: Some image that relates to the sentence (e.g. the scene from a visual novel)
+
+The only required field is the sentence field, all other fields can be left blank if the user desires
+
+![Unmodified Add screen](https://github.com/NoKra/PlusOne/blob/master/src/main/resources/readme/images/add_empty.PNG)
+
+If the URL checkbox is ticked, the user will also be able to include a URL link
+
+![Add screen showing URL](https://github.com/NoKra/PlusOne/blob/master/src/main/resources/readme/images/add_url.PNG)
+
+If the sequential checkbox is ticked, the user will be able to:
+- Start a sequential set of sentences (by clicking "Set Head")
+- Connect to a previously entered sentence to add to that sequence of sentences (by selecting from "Set Link")
+- Start a sequence from a previously un-sequenced sentence (by selecting from "Set Link")
+
+(Note: Once a sequence is started and as long as "Is sequential" is ticked and a back link exists, the user can keep 
+adding sentences to the selected sequence without having to select anything)
+
+![Add screen showing sequential](https://github.com/NoKra/PlusOne/blob/master/src/main/resources/readme/images/add_sequential.PNG)
+
+Images can be added to the image field by pasting an image into the field
+
+(Note: Currently only supports java.awt.ImageFormat i.e. images copied from a web browser, non-file images. Support for 
+file images will come soon)
+
+![Add screen showing image](https://github.com/NoKra/PlusOne/blob/master/src/main/resources/readme/images/add_image.PNG)
+
+Also, the NSFW tag will mark the image and sentence as NSFW (Not Safe For Work). There's currently no functionality for 
+the tag but in the future the user will be able to filter NSFW content when studying and browsing. 
+
+
+### Set Link
+
+The set link page is what will appear when the user clicks "Set Link" to connect their current sentence to a previously 
+entered sentence
+
+(Note: At this time sentences can only be linked sequentially after an existing sentence, not before. But, a sentence 
+can have multiple branching links, e.g. multiple paths in a visual novel. Will work on linking to before a sentence
+so that users can merge branches together)
+
+![Set Link for sequential screen](https://github.com/NoKra/PlusOne/blob/master/src/main/resources/readme/images/setlink.PNG)
+
+Users can search for previously entered sentences by either the contents of their sentence, or by the source name by 
+using the search bar
+
+If a sentence is already a sequential sentence, the user can click "Go to Link" to see the previous sentence in its 
+sequence (this can be clicked until the user reaches the first sentence in the sequence)
+
+Once the user finds the sentence they want to sequentially link to, they can click "Select" and the link will be 
+applied to their current sentence on the Add screen
+
+
+### Browse
+
+Currently, the browse page is mostly inoperable, but the user will be able to freely browse their repository of 
+sentences and edit those sentences
 
 

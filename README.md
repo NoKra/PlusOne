@@ -134,12 +134,12 @@ update images after major revisions)
 ### Initial Startup
 When first starting Plus One, the user will need to choose where the database and image files will be saved
 
-![Root initialization page](https://github.com/NoKra/PlusOne/blob/master/src/main/resources/readme/images/initialization_root.PNG)
+![Root initialization page](https://github.com/NoKra/PlusOne/blob/main/src/main/resources/readme/images/initialization_root.PNG)
 
 - Default will create database folder in local folder (contains db file and image folder)
 - Custom will bring up dialog for choosing where to save database and image files
 
-![Custom initialization page](https://github.com/NoKra/PlusOne/blob/master/src/main/resources/readme/images/initialization_custom.PNG)
+![Custom initialization page](https://github.com/NoKra/PlusOne/blob/main/src/main/resources/readme/images/initialization_custom.PNG)
 
 Database and Image save location can be chosen independently, or by checking "Database and images same location?", 
 both can be saved in the same location
@@ -149,7 +149,7 @@ both can be saved in the same location
 Temporary home page that displays basic stats about the user's repository, navigation bar lets the user navigate
 between pages
 
-![Home screen](https://github.com/NoKra/PlusOne/blob/master/src/main/resources/readme/images/home.PNG)
+![Home screen](https://github.com/NoKra/PlusOne/blob/main/src/main/resources/readme/images/home.PNG)
 
 ### Add
 
@@ -161,11 +161,11 @@ The Add screen lets the user input sentences into their repository
 
 The only required field is the sentence field, all other fields can be left blank if the user desires
 
-![Unmodified Add screen](https://github.com/NoKra/PlusOne/blob/master/src/main/resources/readme/images/add_empty.PNG)
+![Unmodified Add screen](https://github.com/NoKra/PlusOne/blob/main/src/main/resources/readme/images/add_empty.PNG)
 
 If the URL checkbox is ticked, the user will also be able to include a URL link
 
-![Add screen showing URL](https://github.com/NoKra/PlusOne/blob/master/src/main/resources/readme/images/add_url.PNG)
+![Add screen showing URL](https://github.com/NoKra/PlusOne/blob/main/src/main/resources/readme/images/add_url.PNG)
 
 If the sequential checkbox is ticked, the user will be able to:
 - Start a sequential set of sentences (by clicking "Set Head")
@@ -175,14 +175,14 @@ If the sequential checkbox is ticked, the user will be able to:
 (Note: Once a sequence is started and as long as "Is sequential" is ticked and a back link exists, the user can keep 
 adding sentences to the selected sequence without having to select anything)
 
-![Add screen showing sequential](https://github.com/NoKra/PlusOne/blob/master/src/main/resources/readme/images/add_sequential.PNG)
+![Add screen showing sequential](https://github.com/NoKra/PlusOne/blob/main/src/main/resources/readme/images/add_sequential.PNG)
 
 Images can be added to the image field by pasting an image into the field
 
 (Note: Currently only supports java.awt.ImageFormat i.e. images copied from a web browser, non-file images. Support for 
 file images will come soon)
 
-![Add screen showing image](https://github.com/NoKra/PlusOne/blob/master/src/main/resources/readme/images/add_image.PNG)
+![Add screen showing image](https://github.com/NoKra/PlusOne/blob/main/src/main/resources/readme/images/add_image.PNG)
 
 Also, the NSFW tag will mark the image and sentence as NSFW (Not Safe For Work). There's currently no functionality for 
 the tag but in the future the user will be able to filter NSFW content when studying and browsing. 
@@ -197,7 +197,7 @@ entered sentence
 can have multiple branching links, e.g. multiple paths in a visual novel. Will work on linking to before a sentence
 so that users can merge branches together)
 
-![Set Link for sequential screen](https://github.com/NoKra/PlusOne/blob/master/src/main/resources/readme/images/setlink.PNG)
+![Set Link for sequential screen](https://github.com/NoKra/PlusOne/blob/main/src/main/resources/readme/images/setlink.PNG)
 
 Users can search for previously entered sentences by either the contents of their sentence, or by the source name by 
 using the search bar

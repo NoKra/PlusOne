@@ -7,7 +7,8 @@ import settings.Settings;
 import views.AddSentenceView;
 
 import javax.swing.*;
-import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.sql.SQLException;
 import java.util.Objects;
 
@@ -17,12 +18,13 @@ public class AddSentenceController {
     private final Settings settings;
     private final Database database;
     private final JComboBox<String> sourceType;
+    private final JCheckBox sequentialCheck;
+    private final JTextArea currentLinkArea;
     private final JTextArea sourceName;
     private final JCheckBox hasUrlCheck;
     private final JTextArea sourceURL;
     private final JTextArea sentence;
     private final JCheckBox nsfwTag;
-    private final JTextArea backLinkArea;
     private final int notLinked = -1; //Value used to show sentence has no link, neither forward nor backwards
     private final int linkHead = -2; //Value used to show that this sentence is a head link (start of sentence chain)
     private int backlinkId;
@@ -30,19 +32,21 @@ public class AddSentenceController {
     private String imageId = null;
 
     //Instantiation
-    public AddSentenceController(AddSentenceView addSentenceView, Database database, Settings settings) {
-        this.addSentenceView = addSentenceView;
-        this.settings = settings;
-        this.database = database;
-        this.sourceType = addSentenceView.getSourceTypeCombo();
-        this.sourceName = addSentenceView.getSourceNameArea();
-        this.hasUrlCheck = addSentenceView.getHasUrlCheck();
-        this.sourceURL = addSentenceView.getSourceUrlArea();
-        this.sentence = addSentenceView.getSentenceArea();
-        this.nsfwTag = addSentenceView.getNsfwCheck();
-        this.backLinkArea = addSentenceView.getCurrentLinkArea();
+    public AddSentenceController(AddSentenceView parentView, Database inDatabase, Settings inSettings) {
+        addSentenceView = parentView;
+        settings = inSettings;
+        database = inDatabase;
+        sourceType = addSentenceView.getSourceTypeCombo();
+        currentLinkArea = addSentenceView.getCurrentLinkArea();
+        sequentialCheck = addSentenceView.getSequentialCheck();
+        sourceName = addSentenceView.getSourceNameArea();
+        hasUrlCheck = addSentenceView.getHasUrlCheck();
+        sourceURL = addSentenceView.getSourceUrlArea();
+        sentence = addSentenceView.getSentenceArea();
+        nsfwTag = addSentenceView.getNsfwCheck();
         backlinkId = notLinked;
 
+        setSourceTypePanelActions();
     }
 
     public int getBacklinkId() {
@@ -51,6 +55,27 @@ public class AddSentenceController {
 
     public boolean hasBacklink() {
         return backlinkId != notLinked;
+    }
+
+    private void setSourceTypePanelActions() {
+
+
+    }
+
+    public void setbackLinkPanelActions() {
+
+        sequentialCheck.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(sequentialCheck.isSelected()) {
+                    addSentenceView.showSequentialPanel();
+                }
+                else {
+                    addSentenceView.hideSequentialPanel();
+                }
+            }
+        });
+        
     }
 
 
@@ -68,8 +93,8 @@ public class AddSentenceController {
             this.hasUrlCheck.doClick();
         }
         this.backlinkId = linkSentence.getSentenceKey();
-        this.backLinkArea.setText(linkSentence.getSentence());
-        this.backLinkArea.setForeground(settings.pickColor(Settings.Colors.successGreen));
+        this.currentLinkArea.setText(linkSentence.getSentence());
+        this.currentLinkArea.setForeground(settings.pickColor(Settings.Colors.successGreen));
         addSentenceView.repaintAllFields();
     }
 

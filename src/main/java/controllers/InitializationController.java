@@ -1,6 +1,5 @@
 package controllers;
 
-import org.json.simple.JSONObject;
 import settings.Settings;
 import views.InitializationDialog;
 
@@ -8,8 +7,6 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -34,18 +31,18 @@ public class InitializationController {
     public InitializationController(InitializationDialog parentView, Settings inSettings) {
         initializationDialog = parentView;
         settings = inSettings;
-        defaultButton = parentView.getDefaultButton();
-        customButton = parentView.getCustomButton();
-        databaseLocationButton = parentView.getDatabaseLocationButton();
-        databaseLocationPathField = parentView.getDatabaseLocationPathField();
-        sameSaveLocationCheck = parentView.getSameSaveLocationCheck();
-        imageLocationButton = parentView.getImageLocationButton();
-        imageLocationPathField = parentView.getImageLocationPathField();
-        cancelButton = parentView.getCancelButton();
-        confirmButton = parentView.getConfirmButton();
+        defaultButton = initializationDialog.getDefaultButton();
+        customButton = initializationDialog.getCustomButton();
+        databaseLocationButton = initializationDialog.getDatabaseLocationButton();
+        databaseLocationPathField = initializationDialog.getDatabaseLocationPathField();
+        sameSaveLocationCheck = initializationDialog.getSameSaveLocationCheck();
+        imageLocationButton = initializationDialog.getImageLocationButton();
+        imageLocationPathField = initializationDialog.getImageLocationPathField();
+        cancelButton = initializationDialog.getCancelButton();
+        confirmButton = initializationDialog.getConfirmButton();
 
-        setPromptPanelComponentActions();
-        setCustomPanelComponentActions();
+        setPromptPanelActions();
+        setCustomPanelActions();
     }
 
     //Creates user settings using default locations (local file)
@@ -56,7 +53,7 @@ public class InitializationController {
     }
 
     //Component actions for prompt panel
-    private void setPromptPanelComponentActions() {
+    private void setPromptPanelActions() {
         defaultButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -73,7 +70,7 @@ public class InitializationController {
     }
 
     //Component actions for custom panel
-    private void setCustomPanelComponentActions() {
+    private void setCustomPanelActions() {
         databaseLocationButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

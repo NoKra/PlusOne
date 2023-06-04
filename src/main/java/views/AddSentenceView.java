@@ -36,9 +36,10 @@ public class AddSentenceView {
     private final JComboBox<String> sourceTypeCombo;
     private final JCheckBox sequentialCheck = new JCheckBox("Is Sequential");
     private JPanel backlinkPanel;
-    private final JLabel linkStatusLabel = new JLabel("Back Link: ");
-    private final JTextArea currentLinkArea = new JTextArea("No Link");
-    private final JButton setLinkButton = new JButton("Set Link");
+    private final JLabel linkStatusLabel = new JLabel("Previous Sentence: ");
+    private final String noLinkMessage = "No Sentence Selected";
+    private final JTextArea currentLinkArea = new JTextArea(noLinkMessage);
+    private final JButton setLinkButton = new JButton("Set Previous");
     private final JButton viewLinkButton = new JButton("View Link");
     private final JButton setHeadButton = new JButton("Set Head");
     private JPanel sourceNamePanel;
@@ -79,15 +80,17 @@ public class AddSentenceView {
 
     }
 
-    //For passing to AddSentenceControl
+    //Getters
     public JComboBox<String> getSourceTypeCombo() { return sourceTypeCombo; }
+    public JCheckBox getSequentialCheck() {return sequentialCheck;}
+    public String getNoLinkMessage() {return noLinkMessage;}
+    public JTextArea getCurrentLinkArea() { return currentLinkArea; }
     public JTextArea getSourceNameArea () { return sourceNameArea; }
     public JLabel getNameMaxLimitLabel() { return nameMaxLimitLabel; }
     public JTextArea getSourceUrlArea() { return sourceUrlArea; }
     public JCheckBox getHasUrlCheck() { return hasUrlCheck; }
     public JTextArea getSentenceArea() { return sentenceArea; }
     public JCheckBox getNsfwCheck() { return nsfwCheck; }
-    public JTextArea getCurrentLinkArea() { return currentLinkArea; }
     public BufferedImage getSentenceImage() { return sentenceImage; }
     public boolean isPreviousWasNsfwImage() { return previousWasNsfwImage; }
     public boolean isNewImage() { return isNewImage; }
@@ -202,13 +205,6 @@ public class AddSentenceView {
         SpringLayout panelLayout = new SpringLayout();
         returnPanel.setLayout(panelLayout);
 
-        sourceTypeLabel.setFont(settings.pickFont(Settings.Fonts.uiFont));
-        sourceTypeCombo.setFont(settings.pickFont(Settings.Fonts.uiFont));
-        sequentialCheck.setFont(settings.pickFont(Settings.Fonts.uiFont));
-
-        //Prevents the sourceTypeCombo from stretching vertically when window is resized
-        sourceTypeCombo.setMaximumSize(new Dimension());
-        sourceTypeCombo.setSelectedIndex(0);
         //Either adds or removes backLinkPanel from window, depending on checkbox status
         sequentialCheck.addActionListener(new ActionListener() {
             @Override
@@ -240,7 +236,7 @@ public class AddSentenceView {
                 }
                 else {
                     contentPanel.remove(backlinkPanel);
-                    currentLinkArea.setText("No Link");
+                    currentLinkArea.setText(noLinkMessage);
                     currentLinkArea.setForeground(settings.pickColor(Settings.Colors.problemRed));
                     sentenceControl.removeBacklinkId();
 
@@ -310,7 +306,48 @@ public class AddSentenceView {
             }
         });
 
+        setSourceTypePanelStyling();
+
         return returnPanel;
+    }
+
+    private void setSourceTypePanelStyling() {
+        sourceTypeLabel.setFont(settings.pickFont(Settings.Fonts.uiFont));
+        sourceTypeCombo.setFont(settings.pickFont(Settings.Fonts.uiFont));
+        sequentialCheck.setFont(settings.pickFont(Settings.Fonts.uiFont));
+        sourceTypeCombo.setMaximumSize(new Dimension()); //Prevents stretching
+
+    }
+
+    public void showSequentialPanel() {
+        contentPanelLayout.putConstraint(
+                SpringLayout.HORIZONTAL_CENTER, backlinkPanel, 0,
+                SpringLayout.HORIZONTAL_CENTER, contentPanel
+        );
+        contentPanelLayout.putConstraint(
+                SpringLayout.NORTH, backlinkPanel, 0,
+                SpringLayout.SOUTH, sourceTypePanel
+        );
+        contentPanel.add(backlinkPanel);
+
+        contentPanelLayout.putConstraint(
+                SpringLayout.NORTH, sourceNamePanel, 0,
+                SpringLayout.SOUTH, backlinkPanel
+        );
+
+        EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                contentPanel.repaint();
+                contentPanel.revalidate();
+            }
+        });
+        //TODO: check what these do, and if they're necessary
+        mainWindow.getContentScroll().getVerticalScrollBar().setValue(0);
+    }
+
+    public void hideSequentialPanel() {
+        contentPanel.remove(backlinkPanel);
     }
 
     //Creates panel that displays status of link to previous sentence,
